@@ -1,0 +1,85 @@
+{% load static %}
+
+<!DOCTYPE html>
+<html>
+
+<head>
+    <title>Inicio</title>
+    <link rel="icon" type="image/png" href="{% static 'favicon.ico' %}">
+    <link rel="stylesheet" type="text/css" href="{% static 'styles_navbar.css' %}">
+    <link rel="stylesheet" type="text/css" href="{% static 'styles_index.css' %}">
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet"
+        integrity="sha384-T3c6CoIi6uLrA9TneNEoa7RxnatzjcDSCmG1MXxSR1GAsXEV/Dwwykc2MPK8M2HN" crossorigin="anonymous">
+</head>
+
+<body>
+    <nav class="navbar navbar-expand navbar-dark bg-dark fixed-top">
+        <a class="navbar-brand" href="#">NOMBRE</a>
+        <div id="navbarNav">
+            <ul class="navbar-nav">
+                <li class="nav-item active">
+                    <a class="nav-link active" href="{% url 'index' %}">Inicio</a>
+                </li>
+                <li class="nav-item">
+                    <a class="nav-link" href="{% url 'executions' %}">Últimas ejecuciones</a>
+                </li>
+            </ul>
+        </div>
+        <a class="conf-container" href="{% url 'configuration' %}">
+            <img src="{% static 'config.png' %}" height="30"/>
+        </a>
+    </nav>
+    <main>
+        <div class="info">
+            <p>Esta aplicación web se ha desarrollado para facilitar la interacción con el sistema de pruebas. A
+                continuación,
+                dispone de un formulario. En él, puede indicar las características que necesita su software. Añada el
+                programa a
+                probar como archivo. Cuando el clúster finalice la ejecución, podrá observar algunas gráficas para ver
+                el
+                rendimiento y coste.
+            </p>
+        </div>
+        <div class="row">
+            <div class="col-1"></div>
+            <div class="col-10 col-lg-6 formMain">
+                <h2>Formulario para lanzar la ejecución</h2>
+                <div id="form-loading">
+                    <div style="display: flex; justify-content: center; align-items: center;">
+                        <h5>Cargando formulario</h5>
+                    </div>
+                    <div style="display: flex; justify-content: center; align-items: center;">
+                        <img src="{% static 'loading.gif' %}" style="height: 10px; margin-bottom: 20px;">
+                    </div>
+                </div>
+                <div id="form-container">
+                </div>
+            </div>
+            <div class="col-1"></div>
+            <div class="col-1 col d-lg-none"></div>
+            <div class="col-10 col-lg-3 queue">
+                <h2>Ejecuciones en cola</h2>
+                <div id="queue-loading">
+                    <div style="display: flex; justify-content: center; align-items: center;">
+                        <h5>Cargando</h5>
+                    </div>
+                    <div style="display: flex; justify-content: center; align-items: center;">
+                        <img src="{% static 'loading.gif' %}" style="height: 10px; margin-bottom: 20px;">
+                    </div>
+                </div>
+                <div id="queue-container">
+                </div>
+            </div>
+        </div>
+    </main>
+    <footer>
+
+    </footer>
+    <script src="{% static 'script_index.js' %}"></script>
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"
+        integrity="sha384-C6RzsynM9kWDrMNeT87bh95OGNyZPhcTNXj1NW7RuBCsyN/o0jlpcV8Qyq46cDfL"
+        crossorigin="anonymous"></script>
+
+</body>
+
+</html>

@@ -1,0 +1,43 @@
+.navbar {
+    min-height: 80px;
+}
+
+nav > a {
+    margin-left: 20px;
+}
+
+.conf-container {
+    filter: invert(50%);
+    margin-left: auto;
+    margin-right: 20px;
+    transition: transform 0.25s;
+}
+
+.conf-container:hover {
+    transform: rotate(360deg);
+}
+
+body {
+    padding-top: 80px;
+}
+
+main {
+    min-height: 100vh;
+}
+
+footer {
+    margin-top: 40px;
+    min-height: 200px;
+    background-color: black;
+}
+
+.selected {
+    margin-left: auto;
+    margin-right: 20px;
+    transition: transform 0.25s;
+    filter: invert(100%) !important;
+}
+
+.selected:hover {
+    transform: rotate(360deg);
+}

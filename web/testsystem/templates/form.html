@@ -1,0 +1,26 @@
+{% load static %}
+<p style="font-size: small; text-align: end; margin-right: 20px;">El número de VCPUs disponibles es: {{ form.vcpu }}</p>
+<form method="post" enctype="multipart/form-data" id="formulario">
+    {% csrf_token %}
+    <label>Nombre (identificador) de la ejecución</label> 
+    <img id="name" title="El identificador de la ejecución permite dar un nombre a la ejecución que desea probar. De esta manera, se facilitará el acceso a los resultados." align="right" src="{% static 'help.png' %}" style="height: 1em; margin-bottom: 5px; margin-right: 20px;">
+    {{ form.name }}
+    <label>Selección del tipo de instancia</label> 
+    <img id="instance_type" title="Permite seleccionar qué tipo de instancia utilizar para realizar la ejecución del programa." align="right" src="{% static 'help.png' %}" style="height: 1em; margin-bottom: 5px; margin-right: 20px;">
+    {{ form.instance_type }}
+    <label>Número de repeticiones por cada cada configuración de hilo</label> 
+    <img id="repetitions" title="Permite seleccionar el número de repeticiones por cada hilo que se añada a la ejecución." align="right" src="{% static 'help.png' %}" style="height: 1em; margin-bottom: 5px; margin-right: 20px;">
+    {{ form.reps }}
+    <label>Correo electrónico donde notificar la finalización de la prueba</label> 
+    <img id="email" title="Se enviará un correo a esta dirección cuando finalice la ejecución." align="right" src="{% static 'help.png' %}" style="height: 1em; margin-bottom: 5px; margin-right: 20px;">
+    {{ form.email }}
+    <label>Librería utilizada</label> 
+    <img id="libraries" title="Permite seleccionar las librerías que usa el código." align="right" src="{% static 'help.png' %}" style="height: 1em; margin-bottom: 5px; margin-right: 20px;">
+    <div style="margin-bottom: 20px;">
+        {{ form.lib }}
+    </div>
+    <label>Selección del archivo que contiene el programa</label> 
+    <img id="program" title="Programa a ejecutar." align="right" class="info_img" src="{% static 'help.png' %}" style="height: 1em; margin-bottom: 5px; margin-right: 20px;">
+    {{ form.program }}
+    <input type="submit" value="Enviar" id="btnEnviar">
+</form>

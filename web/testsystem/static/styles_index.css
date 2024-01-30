@@ -1,0 +1,108 @@
+.info {
+    padding: 30px
+}
+
+.formMain {
+    background-color: #fff;
+    padding-top: 20px;
+    padding-left: 40px;
+    padding-right: 40px;
+    padding-bottom: 20px;
+    border-radius: 5px;
+    box-shadow: 0px 0px 10px rgba(0, 0, 0, 0.2);
+    margin-bottom: 20px;
+}
+
+.queue {
+    background-color: #fff;
+    padding-top: 20px;
+    padding-left: 40px;
+    padding-right: 40px;
+    padding-bottom: 20px;
+    border-radius: 5px;
+    box-shadow: 0px 0px 10px rgba(0, 0, 0, 0.2);
+    margin-bottom: 20px;
+}
+
+label {
+    display: block;
+    margin-bottom: 8px;
+    color: #333;
+}
+
+input[type="text"],
+input[type="password"],
+input[type="email"],
+input[type="date"],
+input[type="file"],
+input[type="number"],
+input[type="submit"],
+select,
+textarea {
+    width: 100% !important;
+    padding: 10px !important;
+    margin-bottom: 20px !important;
+    border: 1px solid #ccc !important;
+    border-radius: 3px !important;
+    font-size: 16px !important;
+}
+
+#id_lib {
+    margin-bottom: 20px !important;
+}
+
+textarea {
+    height: 100px;
+}
+
+input[type="submit"] {
+    background-color: #333;
+    color: #fff;
+    padding: 10px 20px;
+    border: none;
+    border-radius: 3px;
+    font-size: 18px;
+    cursor: pointer;
+}
+
+input[type="submit"]:hover {
+    background-color: #555;
+}
+
+.checkbox-label {
+    display: inline-block;
+    margin-right: 10px;
+    font-weight: bold;
+    color: #333;
+}
+
+h4,
+h2 {
+    padding-bottom: 20px;
+}
+
+.queue-element {
+    border-radius: 5px;
+    min-height: 110px;
+    padding: 20px;
+    box-shadow: 0px 0px 10px rgba(173, 230, 217, 0.2);
+
+    margin-bottom: 20px;
+}
+
+h6 {
+    font-weight: bolder;
+    font-style: italic;
+}
+
+.running {
+    background-color: rgba(173, 230, 217);
+}
+
+.waiting {
+    background-color: rgb(230, 221, 173);
+}
+
+p {
+    margin-bottom: 0px !important;
+}
