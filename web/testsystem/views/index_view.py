@@ -1,13 +1,13 @@
 from django.shortcuts import render, redirect
 from django.http import JsonResponse
-from testsystem.models.execution_form import InfoForm
+from testsystem.views.execution_form import InfoForm
 from testsystem.models.execution_controller import ExecutionController
 from testsystem.models.execution import Execution
 
-execution_controller = ExecutionController()
+import os
+from django.conf import settings
 
-def configuration(request):
-    return render(request, 'configuration.html')
+execution_controller = ExecutionController()
 
 def index_post(request):
     form = InfoForm(request.POST, request.FILES)
@@ -17,6 +17,7 @@ def index_post(request):
         return redirect('/testsystem/executions/')
     else:
         return redirect('/testsystem/index/')
+
 
 def index(request):
     """
@@ -31,7 +32,8 @@ def index(request):
     if request.method == 'POST':
         return index_post(request)
     aux = list(execution_controller.queue)
-    return render(request, 'index.html', {'executions' : aux})
+    return render(request, 'index.html', {'executions': aux})
+
 
 def queue(request):
     aux = list(execution_controller.queue)
@@ -40,22 +42,16 @@ def queue(request):
 
 
 def form(request):
+    if not verified_user():
+        rendered_form = render(request, 'user_not_found_form.html') 
+        form_html = rendered_form.content.decode()
+        return JsonResponse({'form': form_html}, content_type='text/html')
     form = InfoForm()
     rendered_form = render(request, 'form.html', {'form': form})
     form_html = rendered_form.content.decode()
     return JsonResponse({'form': form_html}, content_type='text/html')
 
-def executions(request):
-    """
-    Rellena el template executions.html con las ejecuciones.
+def verified_user():
+    file_path = os.path.join(settings.BASE_DIR, 'testsystem/files/user_data.txt')
+    return os.path.exists(file_path)
 
-    Args:
-        request: HTTP Request.
-
-    Returns:
-        Devuelve un HttpResponse con la pagina HTML.
-    """
-    #executions = ExecutionsInfo()
-    #tarjetas = executions.get_executions_info()
-    #context = {'tarjetas': tarjetas}
-    return render(request, 'executions.html')

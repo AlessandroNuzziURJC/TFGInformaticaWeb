@@ -1,0 +1,57 @@
+main {
+    padding: 30px
+}
+
+input[type="text"],
+input[type="password"],
+input[type="email"],
+input[type="date"],
+input[type="file"],
+input[type="number"],
+input[type="submit"],
+select,
+textarea {
+    width: 100% !important;
+    padding: 10px !important;
+    margin-bottom: 20px !important;
+    border: 1px solid #ccc !important;
+    border-radius: 3px !important;
+    font-size: 16px !important;
+}
+
+input[type="submit"] {
+    background-color: #333;
+    color: #fff;
+    padding: 10px 20px;
+    border: none;
+    border-radius: 3px;
+    font-size: 18px;
+    cursor: pointer;
+}
+
+input[type="submit"]:hover {
+    background-color: #555;
+}
+
+.form {
+    background-color: #e3e3e3;
+    padding: 20px;
+}
+
+.data {
+    background-color: #c0c0c0;
+    padding: 20px;
+}
+
+.no_file {
+    color: rgb(171, 0, 0);
+    font-weight: bold;
+}
+
+#openstack_files {
+    margin-top: 40px;
+    margin-bottom: 40px;
+    display: block;
+    margin-left: auto;
+    margin-right: auto;
+}

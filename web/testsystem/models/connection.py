@@ -1,20 +1,24 @@
 from openstack import connection
+import yaml
+from django.conf import settings
+import os
 
 class Openstack_Service():
-    # Configuración de las credenciales de OpenStack
-    auth = {
-        'auth_url': 'https://clea.etsii.urjc.es:5000/v3/',
-        'project_name': 'fg-arqdistr',
-        'username': 'fg-arqdistr',
-        'password': '/dB3lGoqMMb6jbyd',
-        'user_domain_name': 'Default',
-        'project_domain_name': 'Default',
-    }
     max_vcpus = 64
     max_volumes = 12
     max_floating_ip = 2
 
     conn = None
+
+    def __init__(self) -> None:
+        file_path = os.path.join(settings.BASE_DIR, 'testsystem/files')
+        for file_name in os.listdir(file_path):
+            if file_name.endswith('.yaml'):
+                with open(file_path + '/' + file_name, 'r') as file:
+                    aux = yaml.safe_load(file)
+                    clouds = aux['clouds']
+                    MDS = clouds['MDS']
+                    self.auth = MDS['auth']
 
     def connect(self):
         self.conn = connection.Connection(**self.auth)
@@ -27,14 +31,8 @@ class Openstack_Service():
         l = list(self.conn.compute.flavors())
         return list(sorted(l, key=lambda x: int(x.id[1:])))
     
-    def free_vcpus(self):
-        #user = self.conn.identity.find_user(username='fg-arqdistr', domain_name='Default')
-
-        used_instances = list(self.conn.compute.servers())
-        used_vcpus = 0
-        for e in used_instances:
-            used_vcpus += e.flavor.vcpus
-        return self.max_vcpus - used_vcpus
+    def get_limits(self):
+        return self.conn.get_compute_limits()
     
     def instances_available(self):
         # Get used vcpus
@@ -46,7 +44,7 @@ class Openstack_Service():
         # Filter valid instances
         flavors_names = []
         for e in list(self.flavors()):
-            if ('c' in e.id and int(e.id[1:]) <= self.max_vcpus - used_vcpus):
+            if ('c' in e.id and int(e.id[1:]) <= self.get_limits()['maxTotalCores'] - used_vcpus):
                 flavors_names.append(e.id)
         return flavors_names
        
