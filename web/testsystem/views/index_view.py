@@ -4,6 +4,7 @@ from testsystem.views.execution_form import InfoForm
 from testsystem.models.execution_controller import ExecutionController
 from testsystem.models.execution import Execution
 
+import requests
 import os
 from django.conf import settings
 
@@ -13,8 +14,12 @@ def index_post(request):
     form = InfoForm(request.POST, request.FILES)
     if form.is_valid():
         execution = Execution(form.cleaned_data, request.FILES['program'])
-        execution_controller.add(execution)
-        return redirect('/testsystem/executions/')
+        #execution_controller.add(execution)
+        response = requests.post('http://localhost:8080/api/enqueue/', json=vars(execution))
+        if response.status_code == 200:
+            return redirect('/testsystem/index/')
+        else:
+            return redirect('/testsystem/index/')
     else:
         return redirect('/testsystem/index/')
 
@@ -31,14 +36,22 @@ def index(request):
     """
     if request.method == 'POST':
         return index_post(request)
-    aux = list(execution_controller.queue)
-    return render(request, 'index.html', {'executions': aux})
+    response = requests.get('http://localhost:8080/api/get_queue/')
+    if response.status_code == 200:
+        queue_content = response.json()["queue"]
+        aux = list(queue_content)
+        return render(request, 'index.html', {'executions': aux})
+    else:
+        return render(request, 'index.html', {'executions': []})
 
 
 def queue(request):
-    aux = list(execution_controller.queue)
-    rendered_queue = render(request, 'queue.html', {'executions': aux})
-    return JsonResponse({'executions': rendered_queue.content.decode()}, content_type='text/html')
+    response = requests.get('http://localhost:8080/api/get_queue/')
+    if response.status_code == 200:
+        queue_content = response.json()["queue"]
+        aux = list(queue_content)
+        rendered_queue = render(request, 'queue.html', {'executions': aux})
+        return JsonResponse({'executions': rendered_queue.content.decode()}, content_type='text/html')
 
 
 def form(request):

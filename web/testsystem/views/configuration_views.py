@@ -5,6 +5,7 @@ from testsystem.views.configuration_form import ConfigurationForm
 from django.urls import reverse
 from django.conf import settings
 import os
+import requests
 
 from testsystem.models.connection import Openstack_Service
 
@@ -22,14 +23,25 @@ def configuration(request):
     sh = False
     yaml_file = None
     sh_file = None
-    for file_name in os.listdir(file_path):
-        if file_name.endswith('.yaml'):
-            yaml = True
-            yaml_file = file_name
-        if file_name.endswith('.sh'):
-            sh = True
-            sh_file = file_name
 
+    response = requests.get('http://localhost:8080/api/exists_yaml_conf_file/')
+    if response.status_code == 200:
+        data = response.json()
+        yaml_file_name = data.get('name')
+        
+        if yaml_file_name is not None:
+            yaml = True
+            yaml_file = yaml_file_name
+
+    response = requests.get('http://localhost:8080/api/exists_sh_conf_file/')
+    if response.status_code == 200:
+        data = response.json()
+        sh_file_name = data.get('name')
+        
+        if sh_file_name is not None:
+            sh = True
+            sh_file = sh_file_name
+    
     return render(request, 'configuration.html', {'form': form,
                                                   'yaml_file_exists': yaml,
                                                   'script_file_exists': sh,
@@ -43,23 +55,35 @@ def configuration_post(request):
         file_sh = request.FILES['file_sh']
         file_yaml = request.FILES['file_yaml']
 
-        if os.path.exists(file_path):
-            shutil.rmtree(file_path)
-        os.makedirs(file_path)
+        # Crear una solicitud multipart/form-data
+        files = {
+            'file_sh': (file_sh.name, file_sh, file_sh.content_type),
+            'file_yaml': (file_yaml.name, file_yaml, file_yaml.content_type)
+        }
 
-        ubication = os.path.join(
-            settings.MEDIA_ROOT, file_path, file_sh.name)
-        with open(ubication, 'wb') as file:
-            for chunk in file_sh.chunks():
-                file.write(chunk)
+        # Hacer una solicitud POST con los archivos
+        response = requests.post('http://localhost:8080/api/store_conf_files/', files=files)
+        if response.status_code == 200:
+            if os.path.exists(file_path):
+                shutil.rmtree(file_path)
+            os.makedirs(file_path)
+            
+            ubication = os.path.join(
+                settings.MEDIA_ROOT, file_path, file_sh.name)
+            with open(ubication, 'wb') as file:
+                for chunk in file_sh.chunks():
+                    file.write(chunk)
 
-        ubication = os.path.join(
-            settings.MEDIA_ROOT, file_path, file_yaml.name)
-        with open(ubication, 'wb') as file:
-            for chunk in file_yaml.chunks():
-                file.write(chunk)
+            ubication = os.path.join(
+                settings.MEDIA_ROOT, file_path, file_yaml.name)
+            with open(ubication, 'wb') as file:
+                for chunk in file_yaml.chunks():
+                    file.write(chunk)
 
-    generate_info_txt()
+            generate_info_txt()
+            os.remove(file_path + '/' + file_sh.name)
+            os.remove(file_path + '/' + file_yaml.name)
+            
     return redirect(reverse(configuration))
 
 
@@ -90,35 +114,22 @@ def generate_file_instance_type(openstack):
 
 
 def yaml_config_file(request):
-    yaml_file_name = None
-
-    for file_name in os.listdir(file_path):
-        if file_name.endswith('.yaml'):
-            yaml_file_name = file_name
-            break
-
-    if yaml_file_name:
-        with open(os.path.join(file_path, yaml_file_name), 'rb') as f:
-            response = HttpResponse(f.read(), content_type='application/yaml')
-            response['Content-Disposition'] = f'attachment; filename="{yaml_file_name}"'
-            return response
-    else:
-        return HttpResponse("No se encontró ningún archivo .yaml en el directorio.")
+    response = requests.get('http://localhost:8080/api/get_yaml_conf_file/')
+    
+    if response.status_code == 200:
+        output =  HttpResponse(response.content, content_type=response.headers['Content-Type'])
+        output['Content-Disposition'] = f'attachment; ' + response.headers.get('Content-Disposition')[response.headers.get('Content-Disposition').find('filename='):]
+        return output
+    
+    return HttpResponse("Error: No se pudo obtener el archivo YAML", status=500)
 
 
 def script_config_file(request):
-    sh_file_name = None
-
-    for file_name in os.listdir(file_path):
-        if file_name.endswith('.sh'):
-            sh_file_name = file_name
-            break
-
-    if sh_file_name:
-        with open(os.path.join(file_path, sh_file_name), 'rb') as f:
-            response = HttpResponse(
-                f.read(), content_type='text/x-shellscript')
-            response['Content-Disposition'] = f'attachment; filename="{sh_file_name}"'
-            return response
-    else:
-        return HttpResponse("No se encontró ningún archivo .sh en el directorio.")
+    response = requests.get('http://localhost:8080/api/get_sh_conf_file/')
+    
+    if response.status_code == 200:
+        output =  HttpResponse(response.content, content_type=response.headers['Content-Type'])
+        output['Content-Disposition'] = f'attachment; ' + response.headers.get('Content-Disposition')[response.headers.get('Content-Disposition').find('filename='):]
+        return output
+    
+    return HttpResponse("Error: No se pudo obtener el archivo sh", status=500)
