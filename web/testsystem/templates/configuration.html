@@ -40,7 +40,7 @@
                 <ul>
                     <li>
                         {% if script_file_exists %}
-                        <a href="{% url 'script_config_file' %}">{{ sh_file }}</a>
+                        <a href="{% url 'get_sh_conf_file' %}">{{ sh_file }}</a>
                         <br>
                         {% else %}
                         <p class="no_file">Cargar en el sistema el script de bash.</p>
@@ -49,7 +49,7 @@
 
                     <li>
                         {% if yaml_file_exists %}
-                        <a href="{% url 'yaml_config_file' %}">{{ yaml_file }}</a>
+                        <a href="{% url 'get_yaml_conf_file' %}">{{ yaml_file }}</a>
                         <br>
                         {% else %}
                         <p class="no_file">Cargar en el sistema el archivo clouds.yaml.</p>

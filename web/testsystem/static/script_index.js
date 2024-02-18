@@ -1,6 +1,6 @@
 function validate() {
     var output = true;
-    var id_name = document.getElementById('id_name');
+    var id_name = document.getElementById('id_exec_name');
     if (id_name.value.trim() === '') {
         id_name.style.backgroundColor = 'rgba(255, 0, 0, 0.1)';
         id_name.focus();
@@ -24,23 +24,6 @@ function validate() {
         output = false;
     }
 
-    var checkboxes = document.querySelectorAll('input[type="checkbox"]');
-    var isChecked = false;
-
-    checkboxes.forEach(function (checkbox) {
-        if (checkbox.checked) {
-            isChecked = true;
-        }
-    });
-
-    if (!isChecked) {
-        for (numero = 0; numero < 3; numero ++) {
-            var label = document.querySelector('label[for="id_lib_' + numero + '"]');
-            label.style.color = 'red';
-
-        }
-        output = false;
-    }
 
     var id_program = document.getElementById('id_program');
     if (id_program.value.trim() === '') {
@@ -85,22 +68,49 @@ document.addEventListener('DOMContentLoaded', function () {
 });
 
 function loadQueue() {
-    fetch('/testsystem/queue/')
-        .then(response => response.json())
-        .then(data => {
-            console.log(data.executions);
-
-            var queueContainer = document.getElementById('queue-container');
-            queueContainer.innerHTML = data.executions;
-
-            var loadingElement = document.getElementById('queue-loading');
+    fetch('/api/get_queue')
+    .then(response => response.json())
+    .then(data => {
+        console.log(data)
+        var loadingElement = document.getElementById('queue-loading');
             if (loadingElement) {
                 loadingElement.remove();
             }
-        })
-        .catch(error => {
-            console.error('Error al obtener la cola:', error);
+
+        document.getElementById('queue-container').innerHTML = '';
+
+        data['queue'].forEach(execution => {
+            const queueElement = document.createElement('div');
+            queueElement.classList.add('row');
+
+            const col1 = document.createElement('div');
+            col1.classList.add('col-1');
+            queueElement.appendChild(col1);
+
+            const col10 = document.createElement('div');
+            col10.classList.add('col-10');
+            const queueElementInner = document.createElement('div');
+            queueElementInner.classList.add('queue-element', execution.status);
+
+            const header = document.createElement('h6');
+            header.textContent = execution.exec_name;
+            queueElementInner.appendChild(header);
+
+            const paragraph = document.createElement('p');
+            paragraph.textContent = execution.timestamp;
+            queueElementInner.appendChild(paragraph);
+
+            col10.appendChild(queueElementInner);
+            queueElement.appendChild(col10);
+
+            const col2 = document.createElement('div');
+            col2.classList.add('col-1');
+            queueElement.appendChild(col2);
+
+            document.getElementById('queue-container').appendChild(queueElement);
         });
+    })
+    .catch(error => console.error('Error al obtener los datos de la cola:', error));
 }
 
 document.addEventListener('DOMContentLoaded', loadQueue);

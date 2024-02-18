@@ -13,9 +13,20 @@ execution_controller = ExecutionController()
 def index_post(request):
     form = InfoForm(request.POST, request.FILES)
     if form.is_valid():
-        execution = Execution(form.cleaned_data, request.FILES['program'])
-        #execution_controller.add(execution)
-        response = requests.post('http://localhost:8080/api/enqueue/', json=vars(execution))
+        program_file = request.FILES['program']
+        execution = Execution(form.cleaned_data, program_file)
+        
+        # Construir los datos de la solicitud multipart/form-data
+        data = {
+            'exec_name': execution.exec_name,
+            'reps': execution.reps,
+            'email': execution.email,
+            'OpenMP': execution.OpenMP,
+            'MPI': execution.MPI,
+        }
+        files = {'program': (program_file.name, program_file, program_file.content_type)}
+        response = requests.post('http://localhost:8080/api/enqueue/', data=data, files=files)
+
         if response.status_code == 200:
             return redirect('/testsystem/index/')
         else:
@@ -36,22 +47,16 @@ def index(request):
     """
     if request.method == 'POST':
         return index_post(request)
-    response = requests.get('http://localhost:8080/api/get_queue/')
-    if response.status_code == 200:
-        queue_content = response.json()["queue"]
-        aux = list(queue_content)
-        return render(request, 'index.html', {'executions': aux})
-    else:
-        return render(request, 'index.html', {'executions': []})
+    return render(request, 'index.html', {'executions': []})
 
 
-def queue(request):
+'''def queue(request):
     response = requests.get('http://localhost:8080/api/get_queue/')
     if response.status_code == 200:
         queue_content = response.json()["queue"]
         aux = list(queue_content)
         rendered_queue = render(request, 'queue.html', {'executions': aux})
-        return JsonResponse({'executions': rendered_queue.content.decode()}, content_type='text/html')
+        return JsonResponse({'executions': rendered_queue.content.decode()}, content_type='text/html')'''
 
 
 def form(request):

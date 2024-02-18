@@ -3,13 +3,14 @@ from datetime import datetime
 class Execution:
 
     def __init__(self, form_data, file) -> None:
-        self.exec_name = form_data['name']
-        self.timestamp = datetime.now().strftime("%Y-%m-%d %H:%M:%S")
+        self.exec_name = form_data['exec_name']
+        #self.timestamp = datetime.now().strftime("%Y-%m-%d %H:%M:%S")
         self.reps = form_data['reps']
         self.email = form_data['email']
-        self.OpenMP = form_data['lib'].__contains__("OpenMP")
-        self.MPI = form_data['lib'].__contains__("MPI")
-        self.instance_name = str(
-            str(self.timestamp) + self.exec_name).replace(" ", "_")
         #self.file = file
-        self.status = 'waiting'
+        file_content = ""
+        for chunk in file.chunks():
+            file_content += chunk.decode('utf-8')
+
+        self.OpenMP = file_content.__contains__('#include <omp.h>')
+        self.MPI = file_content.__contains__('#include <mpi.h>')

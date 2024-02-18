@@ -24,20 +24,16 @@ def configuration(request):
     yaml_file = None
     sh_file = None
 
-    response = requests.get('http://localhost:8080/api/exists_yaml_conf_file/')
+    response = requests.get('http://localhost:8080/api/exists_conf_files/')
     if response.status_code == 200:
         data = response.json()
-        yaml_file_name = data.get('name')
+        yaml_file_name = data.get('yaml_file_name')
+        sh_file_name = data.get('sh_file_name')
         
         if yaml_file_name is not None:
             yaml = True
             yaml_file = yaml_file_name
 
-    response = requests.get('http://localhost:8080/api/exists_sh_conf_file/')
-    if response.status_code == 200:
-        data = response.json()
-        sh_file_name = data.get('name')
-        
         if sh_file_name is not None:
             sh = True
             sh_file = sh_file_name
@@ -112,24 +108,3 @@ def generate_file_instance_type(openstack):
         for e in instances:
             file.write(e + '\n')
 
-
-def yaml_config_file(request):
-    response = requests.get('http://localhost:8080/api/get_yaml_conf_file/')
-    
-    if response.status_code == 200:
-        output =  HttpResponse(response.content, content_type=response.headers['Content-Type'])
-        output['Content-Disposition'] = f'attachment; ' + response.headers.get('Content-Disposition')[response.headers.get('Content-Disposition').find('filename='):]
-        return output
-    
-    return HttpResponse("Error: No se pudo obtener el archivo YAML", status=500)
-
-
-def script_config_file(request):
-    response = requests.get('http://localhost:8080/api/get_sh_conf_file/')
-    
-    if response.status_code == 200:
-        output =  HttpResponse(response.content, content_type=response.headers['Content-Type'])
-        output['Content-Disposition'] = f'attachment; ' + response.headers.get('Content-Disposition')[response.headers.get('Content-Disposition').find('filename='):]
-        return output
-    
-    return HttpResponse("Error: No se pudo obtener el archivo sh", status=500)

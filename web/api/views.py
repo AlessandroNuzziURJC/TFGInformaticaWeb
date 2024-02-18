@@ -4,31 +4,42 @@ from django.http import JsonResponse
 from django.views.decorators.csrf import csrf_exempt
 from django.http import HttpResponse
 from django.conf import settings
-from .models import *  
+from .models import *
 import json
 
 execution_queue = ExecutionQueue()
 file_path = os.path.join(settings.BASE_DIR, 'api/files')
 
+
 @csrf_exempt
 def enqueue(request):
     if request.method == 'POST':
         try:
-            data = json.loads(request.body)
-            print(data)
-            execution_queue.append(Execution(data, None))
+            aux = dict()
+            aux['exec_name'] = request.POST.get('exec_name')
+            aux['reps'] = int(request.POST.get('reps'))
+            aux['email'] = request.POST.get('email')
+            aux['OpenMP'] = bool(request.POST.get('OpenMP'))
+            aux['MPI'] = bool(request.POST.get('MPI'))
+
+            program_file = request.FILES.get('program')
+            execution = Execution(aux, program_file)
+            execution_queue.append(execution)
             return JsonResponse({"message": "Object enqueued successfully"})
-        except json.JSONDecodeError:
-            return JsonResponse({"error": "Invalid JSON format in request body"}, status=400)
+        except Exception as e:
+            return JsonResponse({"error": str(e)}, status=400)
     else:
         return JsonResponse({"error": "Method not allowed"}, status=405)
-    
+
+
 def get_queue(request):
     if request.method == 'GET':
-        queue_content = [execution.to_dict() for execution in execution_queue.queue]
+        queue_content = [execution.to_dict()
+                         for execution in execution_queue.queue]
         return JsonResponse({"queue": queue_content})
     else:
         return JsonResponse({"error": "Method not allowed"}, status=405)
+
 
 @csrf_exempt
 def store_conf_files(request):
@@ -58,7 +69,8 @@ def store_conf_files(request):
             return JsonResponse({"error": "Error in configuration files transfer."}, status=400)
     else:
         return JsonResponse({"error": "Method not allowed"}, status=405)
-    
+
+
 def get_yaml_conf_file(request):
     yaml_file_name = None
 
@@ -74,7 +86,8 @@ def get_yaml_conf_file(request):
             return response
     else:
         return HttpResponse("No se encontró ningún archivo .yaml en el directorio.")
-    
+
+
 def get_sh_conf_file(request):
     sh_file_name = None
 
@@ -90,17 +103,14 @@ def get_sh_conf_file(request):
             return response
     else:
         return HttpResponse("No se encontró ningún archivo .sh en el directorio.")
-    
-def exists_yaml_conf_file(request):
+
+
+def exists_conf_files(request):
+    output = {'yaml_file_name': None, 'sh_file_name': None}
     for file_name in os.listdir(file_path):
         if file_name.endswith('.yaml'):
-            return JsonResponse({'name': file_name})
-        
-    return JsonResponse({'name': None})
-
-def exists_sh_conf_file(request):
-    for file_name in os.listdir(file_path):
+            output['yaml_file_name'] = file_name
         if file_name.endswith('.sh'):
-            return JsonResponse({'name': file_name})
-        
-    return JsonResponse({'name': None})
+            output['sh_file_name'] = file_name
+
+    return JsonResponse(output)

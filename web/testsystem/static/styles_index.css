@@ -106,3 +106,8 @@ h6 {
 p {
     margin-bottom: 0px !important;
 }
+
+#queue-container {
+    max-height: 450px;
+    overflow-y: auto;
+}
