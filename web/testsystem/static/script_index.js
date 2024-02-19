@@ -114,4 +114,4 @@ function loadQueue() {
 }
 
 document.addEventListener('DOMContentLoaded', loadQueue);
-setInterval(loadQueue, 10000);
+setInterval(loadQueue, 1000);

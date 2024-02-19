@@ -1,11 +1,13 @@
 import os
-import shutil
+from .utils import *
 from django.http import JsonResponse
 from django.views.decorators.csrf import csrf_exempt
 from django.http import HttpResponse
 from django.conf import settings
-from .models import *
+from .models.execution_queue import *
+from .models.execution import *
 import json
+
 
 execution_queue = ExecutionQueue()
 file_path = os.path.join(settings.BASE_DIR, 'api/files')
@@ -24,7 +26,7 @@ def enqueue(request):
 
             program_file = request.FILES.get('program')
             execution = Execution(aux, program_file)
-            execution_queue.append(execution)
+            execution_queue.append_waiting_queue(execution)
             return JsonResponse({"message": "Object enqueued successfully"})
         except Exception as e:
             return JsonResponse({"error": str(e)}, status=400)
@@ -34,9 +36,11 @@ def enqueue(request):
 
 def get_queue(request):
     if request.method == 'GET':
-        queue_content = [execution.to_dict()
-                         for execution in execution_queue.queue]
-        return JsonResponse({"queue": queue_content})
+        waiting_queue_content = [execution.to_dict()
+                         for execution in execution_queue.waiting_queue]
+        executing_queue_content = [execution.to_dict()
+                         for execution in execution_queue.executing_queue]
+        return JsonResponse({"queue": executing_queue_content + waiting_queue_content})
     else:
         return JsonResponse({"error": "Method not allowed"}, status=405)
 
@@ -48,9 +52,8 @@ def store_conf_files(request):
             file_sh = request.FILES['file_sh']
             file_yaml = request.FILES['file_yaml']
 
-            if os.path.exists(file_path):
-                shutil.rmtree(file_path)
-            os.makedirs(file_path)
+            if not os.path.exists(file_path):
+                os.makedirs(file_path)
 
             ubication = os.path.join(
                 settings.MEDIA_ROOT, file_path, file_sh.name)
@@ -64,6 +67,16 @@ def store_conf_files(request):
                 for chunk in file_yaml.chunks():
                     file.write(chunk)
 
+            openstack = Openstack_Service()
+            openstack.connect()
+            path = os.path.join(
+                settings.BASE_DIR, file_path, 'instance_types.txt')
+            with open(path, 'w') as file:
+                instances = openstack.instances_available()
+                for e in instances:
+                    file.write(e + '\n')
+            openstack.disconnect()
+
             return JsonResponse({"message": "Configuration files received."})
         except json.JSONDecodeError:
             return JsonResponse({"error": "Error in configuration files transfer."}, status=400)
@@ -73,6 +86,9 @@ def store_conf_files(request):
 
 def get_yaml_conf_file(request):
     yaml_file_name = None
+
+    if not os.path.exists(file_path):
+        os.makedirs(file_path)
 
     for file_name in os.listdir(file_path):
         if file_name.endswith('.yaml'):
@@ -91,6 +107,9 @@ def get_yaml_conf_file(request):
 def get_sh_conf_file(request):
     sh_file_name = None
 
+    if not os.path.exists(file_path):
+        os.makedirs(file_path)
+
     for file_name in os.listdir(file_path):
         if file_name.endswith('.sh'):
             sh_file_name = file_name
@@ -107,6 +126,10 @@ def get_sh_conf_file(request):
 
 def exists_conf_files(request):
     output = {'yaml_file_name': None, 'sh_file_name': None}
+
+    if not os.path.exists(file_path):
+        os.makedirs(file_path)
+
     for file_name in os.listdir(file_path):
         if file_name.endswith('.yaml'):
             output['yaml_file_name'] = file_name
@@ -114,3 +137,4 @@ def exists_conf_files(request):
             output['sh_file_name'] = file_name
 
     return JsonResponse(output)
+
