@@ -24,7 +24,10 @@ def index_post(request):
             'OpenMP': execution.OpenMP,
             'MPI': execution.MPI,
         }
-        files = {'program': (program_file.name, program_file, program_file.content_type)}
+        archivo_bytes = b''
+        for chunk in program_file.chunks():
+            archivo_bytes += chunk
+        files = {'program': (program_file.name, archivo_bytes, program_file.content_type)}
         response = requests.post('http://localhost:8080/api/enqueue/', data=data, files=files)
 
         if response.status_code == 200:

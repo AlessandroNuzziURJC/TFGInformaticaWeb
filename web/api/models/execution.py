@@ -79,6 +79,7 @@ class Execution:
         for flavor in instance_types:
             aux = flavor.split()
             output.append(Instance(self, aux[0], aux[1], queue))
+        #output.append(Instance(self, 'c04', '4', queue))
         return output
     
     def add_instance_run(self):

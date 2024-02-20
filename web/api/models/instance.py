@@ -1,19 +1,23 @@
-import time
 import threading
+import subprocess
 
 class Instance(threading.Thread):
 
     image = 'debian11'
     lock = threading.Lock()
+    create_instance_script = './api/scripts/createInstance.sh'
 
     def __init__(self, execution, flavor, vcpus, queue) -> None:
         self.execution_unique_name = execution.execution_unique_name
-        #self.keyname = 'Prueba2'
+        self.keyname = 'Prueba2'
         self.flavor = flavor
         self.vcpus = int(vcpus)
         self.reps = execution.reps
         #self.results_path = resultsdir
         #self.log_path = logsdir
+        self.log_path = './output/' + self.execution_unique_name + '/logs'
+        self.results_path = './output/' + self.execution_unique_name + '/results'
+
         self.instance_name = execution.execution_unique_name + '__' + self.flavor
         self.vol_name = execution.execution_unique_name + '__' + self.flavor + '__vol'
         self.execution = execution
@@ -25,9 +29,21 @@ class Instance(threading.Thread):
         self.thread.start()
 
     def run (self):
-        for _ in range(1000000):
-            pass
-        print(self.instance_name)
+        self.create_instance()
         with self.lock:
             if self.execution.add_instance_run():
                 self.queue.pop_executing_queue()
+
+    def create_instance(self):
+        """
+        Ejecuta el script de creacion de instancia.
+
+        Args:
+
+        Returns:
+
+        """
+        with open(self.log_path + 'execution.txt', 'a') as outfile:
+            subprocess.call([self.create_instance_script, self.flavor, self.image,
+                            self.keyname, self.instance_name, self.vol_name, self.execution_unique_name], stdout=outfile)
+    
