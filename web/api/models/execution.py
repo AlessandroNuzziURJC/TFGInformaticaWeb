@@ -1,4 +1,3 @@
-from collections import deque
 from datetime import datetime
 import os
 from django.conf import settings
@@ -78,7 +77,8 @@ class Execution:
         self.max_instances_run = len(instance_types)
 
         for flavor in instance_types:
-            output.append(Instance(self, flavor, queue))
+            aux = flavor.split()
+            output.append(Instance(self, aux[0], aux[1], queue))
         return output
     
     def add_instance_run(self):

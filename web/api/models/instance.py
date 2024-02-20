@@ -6,10 +6,11 @@ class Instance(threading.Thread):
     image = 'debian11'
     lock = threading.Lock()
 
-    def __init__(self, execution, flavor, queue) -> None:
+    def __init__(self, execution, flavor, vcpus, queue) -> None:
         self.execution_unique_name = execution.execution_unique_name
         #self.keyname = 'Prueba2'
         self.flavor = flavor
+        self.vcpus = int(vcpus)
         self.reps = execution.reps
         #self.results_path = resultsdir
         #self.log_path = logsdir
@@ -24,7 +25,8 @@ class Instance(threading.Thread):
         self.thread.start()
 
     def run (self):
-        time.sleep(10)
+        for _ in range(1000000):
+            pass
         print(self.instance_name)
         with self.lock:
             if self.execution.add_instance_run():

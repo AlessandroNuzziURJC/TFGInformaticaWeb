@@ -2,6 +2,7 @@ import threading
 from .models.execution_queue import *
 from .models.openstack_service import *
 from collections import deque
+import time
 
 execution_queue = ExecutionQueue()
 file_path = os.path.join(settings.BASE_DIR, 'api/files')
@@ -16,6 +17,8 @@ def daemon():
                 openstack.connect()
                 execute_task(openstack)
                 openstack.disconnect()
+            else:
+                time.sleep(10)
 
 def execute_task(openstack):
     if len(priority_queue) > 0:
@@ -37,8 +40,7 @@ def openstack_instances_available(openstack, next_instance):
     if instances_available == 0:
         return False
     cores_available = int(limits['maxTotalCores']) - int(limits['total_cores_used'])
-    
-    return #nextInstance cabe en cores avialable
+    return next_instance.vcpus <= cores_available
 
 
 thread_imprimir = threading.Thread(target=daemon)

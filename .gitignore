@@ -2,3 +2,4 @@ __pycache__
 files
 .env
 .DS_Store
+output

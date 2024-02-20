@@ -47,3 +47,6 @@ class Openstack_Service():
             if ('c' in e.id and int(e.id[1:]) <= self.get_limits()['maxTotalCores'] - used_vcpus):
                 flavors_names.append(e.id)
         return flavors_names
+    
+    def find_vcpus_used_in_flavor(self, flavor_name):
+        return str(self.conn.compute.find_flavor(flavor_name)['vcpus'])

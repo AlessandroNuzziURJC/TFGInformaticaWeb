@@ -1,4 +1,5 @@
 import os
+import shutil
 from .utils import *
 from django.http import JsonResponse
 from django.views.decorators.csrf import csrf_exempt
@@ -7,6 +8,7 @@ from django.conf import settings
 from .models.execution_queue import *
 from .models.execution import *
 import json
+import yaml
 
 
 execution_queue = ExecutionQueue()
@@ -52,8 +54,10 @@ def store_conf_files(request):
             file_sh = request.FILES['file_sh']
             file_yaml = request.FILES['file_yaml']
 
-            if not os.path.exists(file_path):
-                os.makedirs(file_path)
+            if os.path.exists(file_path):
+                shutil.rmtree(file_path)
+            os.makedirs(file_path)
+                
 
             ubication = os.path.join(
                 settings.MEDIA_ROOT, file_path, file_sh.name)
@@ -74,14 +78,44 @@ def store_conf_files(request):
             with open(path, 'w') as file:
                 instances = openstack.instances_available()
                 for e in instances:
-                    file.write(e + '\n')
+                    file.write(e + ' ' + openstack.find_vcpus_used_in_flavor(e) +'\n')
             openstack.disconnect()
+
+            adapt_sh_file(file_sh, file_yaml)
 
             return JsonResponse({"message": "Configuration files received."})
         except json.JSONDecodeError:
             return JsonResponse({"error": "Error in configuration files transfer."}, status=400)
     else:
         return JsonResponse({"error": "Method not allowed"}, status=405)
+    
+
+def adapt_sh_file(file_sh, file_yaml):
+    ubication_sh = os.path.join(
+                settings.MEDIA_ROOT, file_path, file_sh.name)
+    os.makedirs(file_path + '/adaptation')
+    ubication_sh_mod = os.path.join(
+                settings.MEDIA_ROOT, file_path, 'adaptation/user.sh')
+    ubication_yaml = os.path.join(
+                settings.MEDIA_ROOT, file_path, file_yaml.name)
+    file_sh_lines = []
+    with open(ubication_sh, 'r') as file:
+        file_sh_lines.extend(file.readlines())
+    file_sh_lines.reverse()
+    with open(ubication_sh_mod, 'w') as file:
+        for i in range(1, len(file_sh_lines) + 1):
+            aux = file_sh_lines.pop()
+            if not i in [28, 29, 30, 31]:
+                file.write(aux)
+            if i == 28:
+                with open(ubication_yaml, 'r') as file_yaml_opened:
+                    aux = yaml.safe_load(file_yaml_opened)
+                    clouds = aux['clouds']
+                    MDS = clouds['MDS']
+                    auth = MDS['auth']
+                    password = auth['password']
+                file.write('export OS_PASSWORD="' + password + '"\n')
+
 
 
 def get_yaml_conf_file(request):
