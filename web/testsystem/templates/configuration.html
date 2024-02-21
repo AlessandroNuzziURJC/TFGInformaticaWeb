@@ -66,7 +66,7 @@
                 <img id="openstack_files" src="{% static 'FicherosOpenStackClient.jpg' %}" width="60%">
                 <form method="post" enctype="multipart/form-data" id="upload-form" class="form">
                     {% csrf_token %}
-                    {{ form.as_p }} <!-- Renderiza el formulario con todos los campos -->
+                    {{ form.as_p }}
                     <input type="submit" value="Enviar">
                 </form>
             </div>

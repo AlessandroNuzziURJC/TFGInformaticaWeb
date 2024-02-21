@@ -76,10 +76,11 @@ class Execution:
 
         self.max_instances_run = len(instance_types)
 
-        for flavor in instance_types:
+        '''for flavor in instance_types:
             aux = flavor.split()
-            output.append(Instance(self, aux[0], aux[1], queue))
-        #output.append(Instance(self, 'c04', '4', queue))
+            output.append(Instance(self, aux[0], aux[1], queue))'''
+        output.append(Instance(self, 'c04', '4', queue))
+        #output.append(Instance(self, 'c08', '8', queue))
         return output
     
     def add_instance_run(self):

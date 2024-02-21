@@ -24,7 +24,9 @@ def configuration(request):
     yaml_file = None
     sh_file = None
 
-    response = requests.get('http://localhost:8080/api/exists_conf_files/')
+    relative_url = reverse('exists_conf_files')
+    absolute_url = request.build_absolute_uri(relative_url)
+    response = requests.get(absolute_url)
     if response.status_code == 200:
         data = response.json()
         yaml_file_name = data.get('yaml_file_name')
@@ -57,8 +59,9 @@ def configuration_post(request):
             'file_yaml': (file_yaml.name, file_yaml, file_yaml.content_type)
         }
 
-        # Hacer una solicitud POST con los archivos
-        response = requests.post('http://localhost:8080/api/store_conf_files/', files=files)
+        relative_url = reverse('store_conf_files')
+        absolute_url = request.build_absolute_uri(relative_url)
+        response = requests.post(absolute_url, files=files)
         if response.status_code == 200:
             if os.path.exists(file_path):
                 shutil.rmtree(file_path)

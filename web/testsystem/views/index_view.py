@@ -1,4 +1,5 @@
 from django.shortcuts import render, redirect
+from django.urls import reverse
 from django.http import JsonResponse
 from testsystem.views.execution_form import InfoForm
 from testsystem.models.execution_controller import ExecutionController
@@ -28,7 +29,9 @@ def index_post(request):
         for chunk in program_file.chunks():
             archivo_bytes += chunk
         files = {'program': (program_file.name, archivo_bytes, program_file.content_type)}
-        response = requests.post('http://localhost:8080/api/enqueue/', data=data, files=files)
+        relative_url = reverse('enqueue')
+        absolute_url = request.build_absolute_uri(relative_url)
+        response = requests.post(absolute_url, data=data, files=files)
 
         if response.status_code == 200:
             return redirect('/testsystem/index/')
@@ -51,15 +54,6 @@ def index(request):
     if request.method == 'POST':
         return index_post(request)
     return render(request, 'index.html', {'executions': []})
-
-
-'''def queue(request):
-    response = requests.get('http://localhost:8080/api/get_queue/')
-    if response.status_code == 200:
-        queue_content = response.json()["queue"]
-        aux = list(queue_content)
-        rendered_queue = render(request, 'queue.html', {'executions': aux})
-        return JsonResponse({'executions': rendered_queue.content.decode()}, content_type='text/html')'''
 
 
 def form(request):
