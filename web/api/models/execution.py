@@ -60,7 +60,7 @@ class Execution:
             file.write(f"Email donde notificar: {self.email}\n")
             file.write(f"OpenMP: {self.OpenMP}\n")
             file.write(f"MPI: {self.MPI}\n")
-            file.write(f"Nombre de la instancia: {self.execution_unique_name}\n")
+            file.write(f"Nombre único de la ejecución: {self.execution_unique_name}\n")
 
         ubicacion = os.path.join(
             settings.MEDIA_ROOT, './output/' + self.execution_unique_name + '/program', program_file.name)
@@ -76,10 +76,10 @@ class Execution:
 
         self.max_instances_run = len(instance_types)
 
-        '''for flavor in instance_types:
+        for flavor in instance_types:
             aux = flavor.split()
-            output.append(Instance(self, aux[0], aux[1], queue))'''
-        output.append(Instance(self, 'c04', '4', queue))
+            output.append(Instance(self, aux[0], aux[1], queue))
+        #output.append(Instance(self, 'c04', '4', queue))
         #output.append(Instance(self, 'c08', '8', queue))
         return output
     

@@ -23,9 +23,8 @@ def enqueue(request):
             aux['exec_name'] = request.POST.get('exec_name')
             aux['reps'] = int(request.POST.get('reps'))
             aux['email'] = request.POST.get('email')
-            aux['OpenMP'] = bool(request.POST.get('OpenMP'))
-            aux['MPI'] = bool(request.POST.get('MPI'))
-
+            aux['OpenMP'] = request.POST.get('OpenMP') == 'True'
+            aux['MPI'] = request.POST.get('MPI') == 'True'
             program_file = request.FILES.get('program')
             execution = Execution(aux, program_file)
             execution_queue.append_waiting_queue(execution)
