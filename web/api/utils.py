@@ -13,12 +13,11 @@ def daemon():
     if os.path.exists(file_path):
         while True:
             if exist_task():
+                time.sleep(60)
                 openstack = Openstack_Service()
                 openstack.connect()
                 execute_task(openstack)
                 openstack.disconnect()
-            else:
-                time.sleep(10)
 
 def execute_task(openstack):
     if len(priority_queue) > 0:
@@ -27,12 +26,17 @@ def execute_task(openstack):
             instance = priority_queue.popleft()
             instance.start_thread()
     else:
-        if not execution_queue.waiting_queue_is_empty():
+        if (not execution_queue.waiting_queue_is_empty()) and availability(openstack):
             execution = execution_queue.next_execution()
             priority_queue.extend(execution.create_instances(execution_queue))
 
+
 def exist_task():
     return len(priority_queue) != 0 or not execution_queue.waiting_queue_is_empty()
+
+def availability(openstack):
+    limits = openstack.get_limits()
+    return int(limits['maxTotalCores']) - int(limits['total_cores_used']) > 0 and int(limits['instances']) - int(limits['instances_used']) > 0
 
 def openstack_instances_available(openstack, next_instance):
     limits = openstack.get_limits()
@@ -44,5 +48,5 @@ def openstack_instances_available(openstack, next_instance):
 
 
 thread_imprimir = threading.Thread(target=daemon)
-thread_imprimir.daemon = True  # Esto permite que el subproceso se detenga cuando se detiene el programa principal
+thread_imprimir.daemon = True 
 thread_imprimir.start()
