@@ -50,3 +50,16 @@ class Openstack_Service():
     
     def find_vcpus_used_in_flavor(self, flavor_name):
         return str(self.conn.compute.find_flavor(flavor_name)['vcpus'])
+
+    def create_key(self, path, name):
+        keypair = self.conn.compute.find_keypair(name)
+
+        if keypair:
+            self.conn.compute.delete_keypair(name)
+
+        keypair = self.conn.compute.create_keypair(name=name)
+        
+        with open(path, 'w') as f:
+            f.write("%s" % keypair.private_key)
+
+        os.chmod(path, 0o400)

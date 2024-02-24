@@ -11,7 +11,7 @@ class Instance(threading.Thread):
 
     def __init__(self, execution, flavor, vcpus, queue) -> None:
         self.execution_unique_name = execution.execution_unique_name
-        self.keyname = 'Prueba2'
+        self.keyname = 'key_testsystem'
         self.flavor = flavor
         self.vcpus = int(vcpus)
         self.reps = execution.reps

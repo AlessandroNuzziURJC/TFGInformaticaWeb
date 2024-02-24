@@ -49,42 +49,51 @@ def get_queue(request):
 @csrf_exempt
 def store_conf_files(request):
     if request.method == 'POST':
-        try:
-            file_sh = request.FILES['file_sh']
-            file_yaml = request.FILES['file_yaml']
+        if execution_queue.is_empty():
+            try:
+                file_sh = request.FILES['file_sh']
+                file_yaml = request.FILES['file_yaml']
 
-            if os.path.exists(file_path):
-                shutil.rmtree(file_path)
-            os.makedirs(file_path)
+                if os.path.exists(file_path):
+                    shutil.rmtree(file_path)
+                os.makedirs(file_path)
+                    
+
+                ubication = os.path.join(
+                    settings.MEDIA_ROOT, file_path, file_sh.name)
+                with open(ubication, 'wb') as file:
+                    for chunk in file_sh.chunks():
+                        file.write(chunk)
+
+                ubication = os.path.join(
+                    settings.MEDIA_ROOT, file_path, file_yaml.name)
+                with open(ubication, 'wb') as file:
+                    for chunk in file_yaml.chunks():
+                        file.write(chunk)
+
+                openstack = Openstack_Service()
+                openstack.connect()
+                path = os.path.join(
+                    settings.BASE_DIR, file_path, 'instance_types.txt')
+                with open(path, 'w') as file:
+                    instances = openstack.instances_available()
+                    for e in instances:
+                        file.write(e + ' ' + openstack.find_vcpus_used_in_flavor(e) +'\n')
                 
+                path = os.path.join(
+                    settings.BASE_DIR, file_path, 'key_testsystem.pem')
+                if os.path.exists(path):
+                    shutil.rmtree(path)
+                openstack.create_key(path, 'key_testsystem')
+                openstack.disconnect()
 
-            ubication = os.path.join(
-                settings.MEDIA_ROOT, file_path, file_sh.name)
-            with open(ubication, 'wb') as file:
-                for chunk in file_sh.chunks():
-                    file.write(chunk)
+                adapt_sh_file(file_sh, file_yaml)
 
-            ubication = os.path.join(
-                settings.MEDIA_ROOT, file_path, file_yaml.name)
-            with open(ubication, 'wb') as file:
-                for chunk in file_yaml.chunks():
-                    file.write(chunk)
-
-            openstack = Openstack_Service()
-            openstack.connect()
-            path = os.path.join(
-                settings.BASE_DIR, file_path, 'instance_types.txt')
-            with open(path, 'w') as file:
-                instances = openstack.instances_available()
-                for e in instances:
-                    file.write(e + ' ' + openstack.find_vcpus_used_in_flavor(e) +'\n')
-            openstack.disconnect()
-
-            adapt_sh_file(file_sh, file_yaml)
-
-            return JsonResponse({"message": "Configuration files received."})
-        except json.JSONDecodeError:
-            return JsonResponse({"error": "Error in configuration files transfer."}, status=400)
+                return JsonResponse({"message": "Configuration files received."})
+            except json.JSONDecodeError:
+                return JsonResponse({"error": "Error in configuration files transfer."}, status=400)
+        else:
+            return JsonResponse({'error': 'Cannot change configuration during execution'}, status=405)
     else:
         return JsonResponse({"error": "Method not allowed"}, status=405)
     
