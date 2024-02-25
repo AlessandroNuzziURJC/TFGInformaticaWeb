@@ -2,14 +2,11 @@ from django.shortcuts import render, redirect
 from django.urls import reverse
 from django.http import JsonResponse
 from testsystem.views.execution_form import InfoForm
-from testsystem.models.execution_controller import ExecutionController
 from testsystem.models.execution import Execution
-
 import requests
 import os
 from django.conf import settings
 
-execution_controller = ExecutionController()
 
 def index_post(request):
     form = InfoForm(request.POST, request.FILES)
