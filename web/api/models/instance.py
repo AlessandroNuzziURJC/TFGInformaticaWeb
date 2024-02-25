@@ -1,6 +1,8 @@
 import threading
 import subprocess
 
+from .email_sender import *
+
 class Instance(threading.Thread):
 
     image = 'debian11'
@@ -15,8 +17,6 @@ class Instance(threading.Thread):
         self.flavor = flavor
         self.vcpus = int(vcpus)
         self.reps = execution.reps
-        #self.results_path = resultsdir
-        #self.log_path = logsdir
         self.log_path = './output/' + self.execution_unique_name + '/logs'
         self.results_path = './output/' + self.execution_unique_name + '/results'
 
@@ -35,6 +35,8 @@ class Instance(threading.Thread):
         with self.lock:
             if self.execution.add_instance_run():
                 self.queue.pop_executing_queue()
+                email = EmailSender(self.execution.exec_name, self.execution.email)
+                email.send()
 
     def create_instance(self):
         """
@@ -49,6 +51,7 @@ class Instance(threading.Thread):
             subprocess.call([self.create_instance_script, self.flavor, self.image,
                             self.keyname, self.instance_name, self.vol_name, self.execution_unique_name], stdout=outfile, stderr=outfile)
             for i in range(0, int(self.reps)):
+                #Change seed
                 subprocess.call([self.execute_program_script, self.flavor, self.image,
                             self.keyname, self.instance_name, self.vol_name, self.execution_unique_name], stdout=outfile, stderr=outfile)
             subprocess.call([self.delete_instance_script, self.flavor, self.image,
