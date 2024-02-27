@@ -33,16 +33,16 @@
         <div class="container">
             <div class="row margintop">
 
-                {% for tarjeta in tarjetas %}
+                {% for card in cards %}
                 <div class="col-4">
                     <div class="row">
                         <div class="col-1"></div>
                         <div class="col-10 card">
                             <div class="row">
                                 <div class="col-12">
-                                    <h2>{{ tarjeta.name }}</h2>
-                                    <p>Fecha de ejecución: {{ tarjeta.date }}</p>
-                                    <p>Hora: {{ tarjeta.hour }}</p>
+                                    <h2>{{ card.name }}</h2>
+                                    <p>Fecha de ejecución: {{ card.date }}</p>
+                                    <p>Hora: {{ card.hour }}</p>
                                 </div>
                             </div>
                             <div class="row ">
@@ -50,12 +50,12 @@
                                     <div class="row">
                                         <div class="col-12 col-xl-6">
                                             <button type="button" class="blueButton"
-                                                onclick="window.location.href='/testsystem/executions/' + '{{ tarjeta.instance_name }}'">Detalles
+                                                onclick="window.location.href='/testsystem/executions/' + '{{ card.execution_unique_name }}'">Detalles
                                                 ejecución</button>
                                         </div>
                                         <div class="col-12 col-xl-6">
                                             <button type="button" class="redButton"
-                                                onclick="window.location.href='/testsystem/executions/delete/' + '{{ tarjeta.instance_name }}'">Eliminar
+                                                onclick="window.location.href='/testsystem/executions/delete/' + '{{ card.execution_unique_name }}'">Eliminar
                                                 ejecución</button>
                                         </div>
                                     </div>

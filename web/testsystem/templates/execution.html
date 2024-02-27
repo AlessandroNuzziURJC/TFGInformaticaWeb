@@ -1,0 +1,263 @@
+{% load static %}
+
+<!DOCTYPE html>
+<html>
+
+<head>
+    <title>Últimas ejecuciones</title>
+    <link rel="icon" type="image/png" href="{% static 'favicon.ico' %}">
+    <link rel="stylesheet" type="text/css" href="{% static 'styles_navbar.css' %}">
+    <link rel="stylesheet" type="text/css" href="{% static 'styles_execution.css' %}">
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet"
+        integrity="sha384-T3c6CoIi6uLrA9TneNEoa7RxnatzjcDSCmG1MXxSR1GAsXEV/Dwwykc2MPK8M2HN" crossorigin="anonymous">
+</head>
+
+<body>
+    <nav class="navbar navbar-expand navbar-dark bg-dark fixed-top">
+        <a class="navbar-brand" href="#">NOMBRE</a>
+        <div id="navbarNav">
+            <ul class="navbar-nav">
+                <li class="nav-item">
+                    <a class="nav-link" href="{% url 'index' %}">Inicio</a>
+                </li>
+                <li class="nav-item active">
+                    <a class="nav-link active" href="{% url 'executions' %}">Últimas ejecuciones</a>
+                </li>
+            </ul>
+        </div>
+        <a class="conf-container" href="{% url 'configuration' %}">
+            <img src="{% static 'config.png' %}" height="30" />
+        </a>
+    </nav>
+    <main class="margintop">
+        <h2>{{ exec_name }}</h2>
+        <hr />
+        <h4>Descarga de datos</h4>
+        <a class="downloadLink" href="{% url 'datafiles' execution_unique_name=execution_unique_name %}">
+            <div class="downloadButton">
+                Descargar archivos generados
+            </div>
+        </a>
+        <hr />
+        <h4>Datos de la ejecución</h4>
+        <ul>
+            <li>
+                <p>Nombre: {{ exec_name }}</p>
+            </li>
+            <li>
+                <p>Repeticiones por cada configuración de hilos: {{ reps }}</p>
+            </li>
+            <li>
+                <p>Email de notificación: {{ email }}</p>
+            </li>
+            <li>
+                <p>Librerías utilizadas: {{ libs }}</p>
+            </li>
+            <li>
+                <p>Fecha de lanzamiento de la prueba: {{ date }}</p>
+            </li>
+            <li>
+                <p>Hora de lanzamiento de la prueba: {{ hour }}</p>
+            </li>
+        </ul>
+        <!--p class="smallText">* Puede que la hora y fecha no coincidan con la de su ordenador ya que el cluster tiene
+            hora GMT.</p-->
+        <hr />
+        <!--h4>Resumen de tiempos completo</h4>
+            <p>La ejecución con arranque, instalación de software y eliminación de la instancia
+                ha sido:</p>
+            <ul>
+                {% for i in time_cost %}
+                <li> {{ i.0 }} segundos en la instancia {{ i.1 }}</li>
+                {% endfor %}
+            </ul>
+            <h4>Tabla resumen de costes</h4>
+            <table>
+                <thead>
+                    <tr>
+                        <th>Tipo de usuario</th>
+                        {% for i in header %}
+                        <th>{{ i }}</th>
+                        {% endfor %}
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr>
+                        <td>Empresa privada</td>
+                        {% for i in private_company %}
+                        <td>{{ i }} €</td>
+                        {% endfor %}
+                    </tr>
+                    <tr>
+                        <td>Organismo oficial</td>
+                        {% for i in official_organization %}
+                        <td>{{ i }} €</td>
+                        {% endfor %}
+                    </tr>
+                    <tr>
+                        <td>U.R.J.C</td>
+                        {% for i in urjc %}
+                        <td>{{ i }} €</td>
+                        {% endfor %}
+                    </tr>
+                </tbody>
+            </table-->
+        <hr />
+        <h4>Gráficas</h4>
+        <p>
+            La siguiente gráfica muestra los tiempos de ejecución del software con distintas configuraciones
+            en el número de hilos de la instancia de prueba.
+        </p>
+        <canvas id="times"></canvas>
+        <p>
+            La siguiente gráfica muestra los costes de ejecución del software con distintas instancias.
+        </p>
+        <canvas id="costs"></canvas>
+
+    </main>
+
+    <!--script>
+            function fetchAndCreateChartTimes() {
+                const instance_name = "{{ id }}";
+                return fetch('/appweb/data/times/' + instance_name)
+                    .then(response => {
+                        if (!response.ok) {
+                            throw new Error(`No se pudo obtener los datos para el hilo: ${instance_name}`);
+                        }
+                        return response.json();
+                    })
+                    .then(response => {
+                        const threads = response.threads;
+                        const datos = {
+                            label: "Tiempo medio de ejecución",
+                            data: response.data,
+                            borderColor: 'rgba(54, 162, 235)',
+                            borderWidth: 2,
+                        };
+
+                        const desviaciontipica = {
+                            label: "Desviación típica de ejecución",
+                            data: response.std_dev,
+                            borderColor: 'rgba(250, 0, 0)',
+                            borderWidth: 2,
+                        };
+
+                        const chartCanvas = document.querySelector('#times');
+
+                        new Chart(chartCanvas, {
+                            type: 'line',
+                            data: {
+                                labels: threads,
+                                datasets: [datos, desviaciontipica],
+                            },
+                            options: {
+                                scales: {
+                                    xAxes: [{
+                                        scaleLabel: {
+                                            display: true,
+                                            labelString: 'Threads usados',
+                                        },
+                                    }],
+                                    yAxes: [{
+                                        ticks: {
+                                            beginAtZero: true
+                                        },
+                                        scaleLabel: {
+                                            display: true,
+                                            labelString: 'Tiempo de ejecución (segundos)',
+                                        },
+                                    }],
+                                },
+                            }
+                        });
+                    })
+                    .catch(error => {
+                        console.error(`Error para el hilo ${instance_name}:`, error);
+                    });
+            }
+
+            document.addEventListener("DOMContentLoaded", function () {
+                fetchAndCreateChartTimes();
+            });
+        </script>
+
+        <script>
+            function fetchAndCreateChart() {
+                const instance_name = "{{ id }}";
+                return fetch('/appweb/data/costs/' + instance_name)
+                    .then(response => {
+                        if (!response.ok) {
+                            throw new Error(`No se pudo obtener los datos para el hilo: ${instance_name}`);
+                        }
+                        return response.json();
+                    })
+                    .then(response => {
+                        const threads = response.threads;
+                        const datosEmpresaPrivada = {
+                            label: "Coste Empresa Privada",
+                            data: response.data.private_company,
+                            borderColor: 'rgba(255, 0, 0)',
+                            borderWidth: 2,
+                        };
+
+                        const datosOrganizacionPublica = {
+                            label: "Coste Organización Pública",
+                            data: response.data.official_organization,
+                            borderColor: 'rgba(0, 255, 0, 1)',
+                            borderWidth: 2,
+                        };
+
+                        const urjc = {
+                            label: "U.R.J.C.",
+                            data: response.data.urjc,
+                            borderColor: 'rgba(0, 150, 150)',
+                            borderWidth: 2,
+                        };
+
+                        const chartCanvas = document.querySelector('#costs');
+
+                        new Chart(chartCanvas, {
+                            type: 'line',
+                            data: {
+                                labels: threads,
+                                datasets: [datosEmpresaPrivada, datosOrganizacionPublica, urjc],
+                            },
+                            options: {
+                                scales: {
+                                    xAxes: [{
+                                        scaleLabel: {
+                                            display: true,
+                                            labelString: 'Threads usados',
+                                        },
+                                    }],
+                                    yAxes: [{
+                                        ticks: {
+                                            beginAtZero: true
+                                        },
+                                        scaleLabel: {
+                                            display: true,
+                                            labelString: 'Coste (Euros)',
+                                        },
+                                    }],
+                                },
+                            }
+                        });
+                    })
+                    .catch(error => {
+                        console.error(`Error para el hilo ${instance_name}:`, error);
+                    });
+            }
+
+            document.addEventListener("DOMContentLoaded", function () {
+                fetchAndCreateChart();
+            });
+        </script-->
+    <footer>
+
+    </footer>
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"
+        integrity="sha384-C6RzsynM9kWDrMNeT87bh95OGNyZPhcTNXj1NW7RuBCsyN/o0jlpcV8Qyq46cDfL"
+        crossorigin="anonymous"></script>
+</body>
+
+</html>

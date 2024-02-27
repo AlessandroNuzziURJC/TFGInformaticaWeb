@@ -12,7 +12,7 @@ def index_post(request):
     form = InfoForm(request.POST, request.FILES)
     if form.is_valid():
         program_file = request.FILES['program']
-        execution = Execution(form.cleaned_data, program_file)
+        execution = Execution(form_data=form.cleaned_data, file=program_file)
         
         # Construir los datos de la solicitud multipart/form-data
         data = {
