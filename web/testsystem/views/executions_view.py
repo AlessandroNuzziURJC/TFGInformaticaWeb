@@ -3,10 +3,12 @@ import requests
 from django.urls import reverse
 import shutil
 from django.http import HttpResponse
+from django.http import JsonResponse
 
 from testsystem.models.execution import Execution
 from testsystem.models.executions_info import ExecutionsInfo
 from testsystem.models.zip_generator import ZipGenerator
+from testsystem.models.data_extractor import DataExtractor
 
 def executions(request):
     """
@@ -92,3 +94,43 @@ def datafiles(request, execution_unique_name):
     zip_name = output['nombre_zip']
     response['Content-Disposition'] = f'attachment; filename="{zip_name}"'
     return response
+
+def data_times(request, execution_unique_name):
+    """
+    Devuelve los datos de una ejecucion para generar la grafica de tiempos en Javascript.
+
+    Args:
+        request: HTTP Request.
+        execution_unique_name: identificador de la ejecucion.
+
+    Returns:
+        Devuelve un JsonResponse con los datos o una excepcion si algo no va bien.
+    """
+    try:
+        extractor = DataExtractor(execution_unique_name)
+        response_data = extractor.extract_times()
+        return JsonResponse(response_data)
+    except FileNotFoundError:
+        return JsonResponse({'error': 'El archivo no se encontró'}, status=404)
+    except Exception as e:
+        return JsonResponse({'error': str(e)}, status=500)
+
+def data_costs(request, execution_unique_name):
+    """
+    Devuelve los datos de una ejecucion para generar la grafica de costes en Javascript.
+
+    Args:
+        request: HTTP Request.
+        execution_unique_name: identificador de la ejecucion.
+
+    Returns:
+        Devuelve un JsonResponse con los datos o una excepcion si algo no va bien.
+    """
+    try:
+        extractor = DataExtractor(execution_unique_name)
+        response_data = extractor.extract_cost()
+        return JsonResponse(response_data)
+    except FileNotFoundError:
+        return JsonResponse({'error': 'El archivo no se encontró'}, status=404)
+    except Exception as e:
+        return JsonResponse({'error': str(e)}, status=500)

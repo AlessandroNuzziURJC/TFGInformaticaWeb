@@ -8,6 +8,8 @@ KEY_NAME="$3"
 INSTANCE_NAME="$4"
 VOL_NAME="$5"
 UNIQUE_NAME="$6"
+MPI="$7"
+OPENMP="$8"
 
 openstack volume create --image $IMAGE $VOL_NAME --size 4
 sleep 15
@@ -19,3 +21,7 @@ ssh -o StrictHostKeyChecking=no -i ./api/files/key_testsystem.pem debian@$IP "su
 ssh -o StrictHostKeyChecking=no -i ./api/files/key_testsystem.pem debian@$IP "sudo apt install build-essential -y"
 ssh -o StrictHostKeyChecking=no -i ./api/files/key_testsystem.pem debian@$IP "mkdir prg" 
 ssh -o StrictHostKeyChecking=no -i ./api/files/key_testsystem.pem debian@$IP "chmod 777 prg" 
+
+if [ $MPI = "True" ]; then
+    ssh -o StrictHostKeyChecking=no -i ./api/files/key_testsystem.pem debian@$IP "sudo apt-get install openmpi-bin openmpi-doc libopenmpi-dev -y"
+fi

@@ -47,13 +47,23 @@ class Instance(threading.Thread):
         Returns:
 
         """
+        aux_output = './output/' + self.execution_unique_name +'/results/c_' + self.flavor[1:] + '_.txt'
+        threads = 0
+        if self.execution.MPI or self.execution.OpenMP:
+            threads = self.vcpus
+            print(threads)
         with open(self.log_path + '/execution_' + self.flavor + '_.txt', 'a') as outfile:
             subprocess.call([self.create_instance_script, self.flavor, self.image,
-                            self.keyname, self.instance_name, self.vol_name, self.execution_unique_name], stdout=outfile, stderr=outfile)
+                            self.keyname, self.instance_name, self.vol_name, 
+                            self.execution_unique_name, str(self.execution.MPI), 
+                            str(self.execution.OpenMP)], stdout=outfile, stderr=outfile)
             for i in range(0, int(self.reps)):
                 #Change seed
                 subprocess.call([self.execute_program_script, self.flavor, self.image,
-                            self.keyname, self.instance_name, self.vol_name, self.execution_unique_name], stdout=outfile, stderr=outfile)
+                            self.keyname, self.instance_name, self.vol_name, 
+                            self.execution_unique_name, aux_output, 
+                            str(self.execution.MPI), str(self.execution.OpenMP), str(threads)], 
+                            stdout=outfile, stderr=outfile)
             subprocess.call([self.delete_instance_script, self.flavor, self.image,
                             self.keyname, self.instance_name, self.vol_name, self.execution_unique_name], stdout=outfile, stderr=outfile)
 

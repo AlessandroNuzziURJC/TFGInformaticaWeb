@@ -8,6 +8,7 @@
     <link rel="icon" type="image/png" href="{% static 'favicon.ico' %}">
     <link rel="stylesheet" type="text/css" href="{% static 'styles_navbar.css' %}">
     <link rel="stylesheet" type="text/css" href="{% static 'styles_execution.css' %}">
+    <script src="https://cdn.jsdelivr.net/npm/chart.js@latest/dist/Chart.min.js"></script>
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet"
         integrity="sha384-T3c6CoIi6uLrA9TneNEoa7RxnatzjcDSCmG1MXxSR1GAsXEV/Dwwykc2MPK8M2HN" crossorigin="anonymous">
 </head>
@@ -105,21 +106,20 @@
         <hr />
         <h4>Gráficas</h4>
         <p>
-            La siguiente gráfica muestra los tiempos de ejecución del software con distintas configuraciones
-            en el número de hilos de la instancia de prueba.
+            La siguiente gráfica muestra los tiempos de ejecución del software.
         </p>
         <canvas id="times"></canvas>
         <p>
-            La siguiente gráfica muestra los costes de ejecución del software con distintas instancias.
+            La siguiente gráfica muestra los costes de ejecución del software.
         </p>
         <canvas id="costs"></canvas>
 
     </main>
 
-    <!--script>
+    <script>
             function fetchAndCreateChartTimes() {
-                const instance_name = "{{ id }}";
-                return fetch('/appweb/data/times/' + instance_name)
+                const instance_name = "{{ execution_unique_name }}";
+                return fetch('/testsystem/data/times/' + instance_name)
                     .then(response => {
                         if (!response.ok) {
                             throw new Error(`No se pudo obtener los datos para el hilo: ${instance_name}`);
@@ -155,7 +155,7 @@
                                     xAxes: [{
                                         scaleLabel: {
                                             display: true,
-                                            labelString: 'Threads usados',
+                                            labelString: 'Instancias usadas',
                                         },
                                     }],
                                     yAxes: [{
@@ -183,8 +183,8 @@
 
         <script>
             function fetchAndCreateChart() {
-                const instance_name = "{{ id }}";
-                return fetch('/appweb/data/costs/' + instance_name)
+                const instance_name = "{{ execution_unique_name }}";
+                return fetch('/testsystem/data/costs/' + instance_name)
                     .then(response => {
                         if (!response.ok) {
                             throw new Error(`No se pudo obtener los datos para el hilo: ${instance_name}`);
@@ -220,14 +220,14 @@
                             type: 'line',
                             data: {
                                 labels: threads,
-                                datasets: [datosEmpresaPrivada, datosOrganizacionPublica, urjc],
+                                datasets: [urjc],
                             },
                             options: {
                                 scales: {
                                     xAxes: [{
                                         scaleLabel: {
                                             display: true,
-                                            labelString: 'Threads usados',
+                                            labelString: 'Instancias usadas',
                                         },
                                     }],
                                     yAxes: [{
@@ -251,7 +251,7 @@
             document.addEventListener("DOMContentLoaded", function () {
                 fetchAndCreateChart();
             });
-        </script-->
+        </script>
     <footer>
 
     </footer>

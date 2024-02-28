@@ -46,9 +46,6 @@ class Execution:
         if not os.path.exists('./output/' + self.execution_unique_name + '/results'):
             os.makedirs('./output/' + self.execution_unique_name + '/results')
 
-        if not os.path.exists('./output/' + self.execution_unique_name + '/time'):
-            os.makedirs('./output/' + self.execution_unique_name + '/time')
-
         if not os.path.exists('./output/' + self.execution_unique_name + '/program'):
             os.makedirs('./output/' + self.execution_unique_name + '/program')
 
@@ -79,8 +76,6 @@ class Execution:
         for flavor in instance_types:
             aux = flavor.split()
             output.append(Instance(self, aux[0], aux[1], queue))
-        #output.append(Instance(self, 'c04', '4', queue))
-        #output.append(Instance(self, 'c08', '8', queue))
         return output
     
     def add_instance_run(self):
