@@ -57,18 +57,49 @@
                     </li>
                 </ul>
 
-
+                <h2>Precios de instancia</h2>
+                <ul>
+                    <li>
+                        {% if prices_exist %}
+                        <a href="{% url 'price_file' %}">Precios</a>
+                        <br>
+                        {% else %}
+                        <p class="no_file">Cargar en el sistema los precios de cada instancia.</p>
+                        {% endif %}
+                    </li>
+                </ul>
             </div>
             <div class="col-9 form">
                 <h2>Carga de archivos de configuración</h2>
                 <p>Es necesario incluir algunos archivos para que el sistema funcione correctamente. Dichos archivos pueden
                     obtenerse desde la interfaz web de OpenStack.</p>
                 <img id="openstack_files" src="{% static 'FicherosOpenStackClient.jpg' %}" width="60%">
-                <form method="post" enctype="multipart/form-data" id="upload-form" class="form">
-                    {% csrf_token %}
-                    {{ form.as_p }}
-                    <input type="submit" value="Enviar">
-                </form>
+                <div class="row">
+                    <div class="col-1"></div>
+                    <div class="col-4 form_container">
+                        <h4>Archivos de configuración</h4>
+                        <form method="post" enctype="multipart/form-data" id="upload-form" class="form">
+                            {% csrf_token %}
+                            {{ form.as_p }}
+                            <input type="submit" value="Enviar">
+                        </form>
+                    </div>
+                    <div class="col-1"></div>
+                    <div class="col-5 form_container">
+                        <h4>Configuración de precios</h4>
+                        {% if prices_form_exist %}
+                        <p>El precio debe estar especificado en euros por hora (€/hora)</p>
+                        <form method="post" enctype="multipart/form-data" id="upload-form" class="form">
+                            {% csrf_token %}
+                            {{ prices_form.as_p }}
+                            <input type="submit" value="Enviar">
+                        </form>
+                        {% else %}
+                        <p>Debes enviar antes los archivos de configuración.</p>
+                        {% endif %}
+                    </div>
+                    <div class="col-1"></div>
+                </div>
             </div>
         </div>
 

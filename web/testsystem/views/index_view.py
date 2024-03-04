@@ -65,5 +65,6 @@ def form(request):
 
 def verified_user():
     file_path = os.path.join(settings.BASE_DIR, 'testsystem/files/user_data.txt')
-    return os.path.exists(file_path)
+    prices_path = os.path.join(settings.BASE_DIR, 'testsystem/files/prices.txt')
+    return os.path.exists(file_path) and os.path.exists(prices_path)
 

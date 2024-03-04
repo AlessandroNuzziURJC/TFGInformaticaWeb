@@ -2,6 +2,7 @@ import shutil
 from django.shortcuts import render, redirect
 from django.http import HttpResponse
 from testsystem.views.configuration_form import ConfigurationForm
+from testsystem.views.prices_form import PricesForm
 from django.urls import reverse
 from django.conf import settings
 import os
@@ -16,8 +17,15 @@ def configuration(request):
     if request.method == 'POST':
         return configuration_post(request)
     form = ConfigurationForm()
-    if not os.path.exists(file_path):
+    if not os.path.exists(file_path):  
         os.makedirs(file_path)
+
+    if not os.path.exists(file_path + '/instance_types.txt'):
+        prices_form_exist = False
+        prices_form = None
+    else:
+        prices_form_exist = True
+        prices_form = PricesForm()
 
     yaml = False
     sh = False
@@ -41,6 +49,9 @@ def configuration(request):
             sh_file = sh_file_name
     
     return render(request, 'configuration.html', {'form': form,
+                                                  'prices_exist': exists_price_file(),
+                                                  'prices_form_exist': prices_form_exist,
+                                                  'prices_form': prices_form,
                                                   'yaml_file_exists': yaml,
                                                   'script_file_exists': sh,
                                                   'yaml_file': yaml_file,
@@ -82,7 +93,17 @@ def configuration_post(request):
             generate_info_txt()
             os.remove(file_path + '/' + file_sh.name)
             os.remove(file_path + '/' + file_yaml.name)
-            
+    form = PricesForm(request.POST, request.FILES)
+
+    if form.is_valid():
+        ubication = os.path.join(
+                settings.MEDIA_ROOT, file_path, 'prices.txt')
+        if os.path.exists(ubication):
+            os.remove(ubication)
+        with open(ubication, 'w') as file:
+            for key, value in form.cleaned_data.items():
+                line = f"{key}: {value}\n"
+                file.write(line)
     return redirect(reverse(configuration))
 
 
@@ -111,3 +132,16 @@ def generate_file_instance_type(openstack):
         for e in instances:
             file.write(e + '\n')
 
+def price_file(request):
+    response = None
+    with open(os.path.join(file_path, 'prices.txt'), 'rb') as f:
+        response = HttpResponse(f.read(), content_type='application/txt')
+        response['Content-Disposition'] = f'attachment; filename=prices.txt'
+    return response
+
+def exists_price_file():
+    for file_name in os.listdir(file_path):
+        if file_name == 'prices.txt':
+            return True
+    
+    return False

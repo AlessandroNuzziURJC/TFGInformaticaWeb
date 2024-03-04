@@ -13,4 +13,5 @@ urlpatterns = [
     path('datafiles/<str:execution_unique_name>', datafiles, name="datafiles"),
     path('data/times/<str:execution_unique_name>', data_times, name='data_times'),
     path('data/costs/<str:execution_unique_name>', data_costs, name='data_costs'),
+    path('configuration/prices', price_file, name='price_file'),
 ]

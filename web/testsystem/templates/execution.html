@@ -102,11 +102,12 @@
                         {% endfor %}
                     </tr>
                 </tbody>
-            </table-->
-        <hr />
+            </table>
+        <hr /-->
         <h4>Gráficas</h4>
         <p>
-            La siguiente gráfica muestra los tiempos de ejecución del software.
+            La siguiente gráfica muestra los tiempos de ejecución del software. En azul se muestra la media del tiempo
+            de ejecución y las líneas grises representan el intervalo de confianza al 95%.
         </p>
         <canvas id="times"></canvas>
         <p>
@@ -117,71 +118,125 @@
     </main>
 
     <script>
-            function fetchAndCreateChartTimes() {
-                const instance_name = "{{ execution_unique_name }}";
-                return fetch('/testsystem/data/times/' + instance_name)
-                    .then(response => {
-                        if (!response.ok) {
-                            throw new Error(`No se pudo obtener los datos para el hilo: ${instance_name}`);
-                        }
-                        return response.json();
-                    })
-                    .then(response => {
-                        const threads = response.threads;
-                        const datos = {
-                            label: "Tiempo medio de ejecución",
-                            data: response.data,
-                            borderColor: 'rgba(54, 162, 235)',
-                            borderWidth: 2,
-                        };
+        function calculateAverageAndBounds(data) {
+            var output = {
+                average: [],
+                upperBound: [],
+                lowerBound: []
+            };
+            for (var key in data) {
+                if (data.hasOwnProperty(key) && Array.isArray(data[key])) {
+                    var sum = 0;
+                    var dataArray = data[key];
+                    var count = dataArray.length;
 
-                        const desviaciontipica = {
-                            label: "Desviación típica de ejecución",
-                            data: response.std_dev,
-                            borderColor: 'rgba(250, 0, 0)',
-                            borderWidth: 2,
-                        };
+                    for (var i = 0; i < count; i++) {
+                        sum += dataArray[i];
+                    }
 
-                        const chartCanvas = document.querySelector('#times');
+                    var mean = sum / count;
+                    output.average.push(mean);
 
-                        new Chart(chartCanvas, {
-                            type: 'line',
-                            data: {
-                                labels: threads,
-                                datasets: [datos, desviaciontipica],
-                            },
-                            options: {
-                                scales: {
-                                    xAxes: [{
-                                        scaleLabel: {
-                                            display: true,
-                                            labelString: 'Instancias usadas',
-                                        },
-                                    }],
-                                    yAxes: [{
-                                        ticks: {
-                                            beginAtZero: true
-                                        },
-                                        scaleLabel: {
-                                            display: true,
-                                            labelString: 'Tiempo de ejecución (segundos)',
-                                        },
-                                    }],
-                                },
-                            }
-                        });
-                    })
-                    .catch(error => {
-                        console.error(`Error para el hilo ${instance_name}:`, error);
-                    });
+                    // Calcular la desviación estándar
+                    var squaredDifferencesSum = 0;
+                    for (var j = 0; j < count; j++) {
+                        squaredDifferencesSum += Math.pow(dataArray[j] - mean, 2);
+                    }
+                    var standardDeviation = Math.sqrt(squaredDifferencesSum / count);
+
+                    // Calcular el intervalo de confianza al 95%
+                    var marginOfError = 1.96 * (standardDeviation / Math.sqrt(count)); // 1.96 para el 95% de confianza
+                    output.upperBound.push(mean + marginOfError);
+                    output.lowerBound.push(mean - marginOfError);
+                }
             }
+            return output;
+        }
 
-            document.addEventListener("DOMContentLoaded", function () {
-                fetchAndCreateChartTimes();
-            });
-        </script>
+        function fetchAndCreateChartTimes() {
+            const instance_name = "{{ execution_unique_name }}";
+            return fetch('/testsystem/data/times/' + instance_name)
+                .then(response => {
+                    if (!response.ok) {
+                        throw new Error(`No se pudo obtener los datos para el hilo: ${instance_name}`);
+                    }
+                    return response.json();
+                })
+                .then(response => {
+                    data = calculateAverageAndBounds(response.data);
 
-        <script>
+                    const threads = response.threads;
+                    const datos = {
+                        label: "Tiempo medio de ejecución",
+                        data: data.average,
+                        borderColor: 'rgba(54, 162, 235)',
+                        borderWidth: 2,
+                        pointRadius: 5,
+                        fill: false,
+                        tension: 0,
+                    };
+
+                    const upperBound = {
+                        label: "Upper Bound",
+                        data: data.upperBound,
+                        borderColor: 'rgba(145, 145, 145, 0.8)',
+                        borderWidth: 2,
+                        fill: false,
+                        tension: 0,
+                        pointHoverRadius: 0, 
+                    };
+
+                    const lowerBound = {
+                        label: "Lower Bound",
+                        data: data.lowerBound,
+                        borderColor: 'rgba(211, 211, 211, 0.8)',
+                        borderWidth: 2,
+                        fill: false,
+                        tension: 0,
+                        pointHoverRadius: 0, 
+                    };
+
+                    const chartCanvas = document.querySelector('#times');
+
+                    new Chart(chartCanvas, {
+                        type: 'line',
+                        data: {
+                            labels: threads,
+                            datasets: [datos, upperBound, lowerBound],
+                        },
+                        options: {
+                            scales: {
+                                xAxes: [{
+                                    scaleLabel: {
+                                        display: true,
+                                        labelString: 'Instancias usadas',
+                                    },
+                                }],
+                                yAxes: [{
+                                    ticks: {
+                                        beginAtZero: true
+                                    },
+                                    scaleLabel: {
+                                        display: true,
+                                        labelString: 'Tiempo de ejecución (segundos)',
+                                    },
+                                }],
+                            },
+                        }
+                    });
+                })
+                .catch(error => {
+                    console.error(`Error para el hilo ${instance_name}:`, error);
+                });
+        }
+
+        document.addEventListener("DOMContentLoaded", function () {
+            fetchAndCreateChartTimes();
+        });
+    </script>
+
+
+    <script>
             function fetchAndCreateChart() {
                 const instance_name = "{{ execution_unique_name }}";
                 return fetch('/testsystem/data/costs/' + instance_name)
@@ -193,23 +248,10 @@
                     })
                     .then(response => {
                         const threads = response.threads;
-                        const datosEmpresaPrivada = {
-                            label: "Coste Empresa Privada",
-                            data: response.data.private_company,
-                            borderColor: 'rgba(255, 0, 0)',
-                            borderWidth: 2,
-                        };
-
-                        const datosOrganizacionPublica = {
-                            label: "Coste Organización Pública",
-                            data: response.data.official_organization,
-                            borderColor: 'rgba(0, 255, 0, 1)',
-                            borderWidth: 2,
-                        };
 
                         const urjc = {
                             label: "U.R.J.C.",
-                            data: response.data.urjc,
+                            data: response.urjc,
                             borderColor: 'rgba(0, 150, 150)',
                             borderWidth: 2,
                         };
