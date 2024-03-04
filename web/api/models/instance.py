@@ -51,7 +51,6 @@ class Instance(threading.Thread):
         threads = 0
         if self.execution.MPI or self.execution.OpenMP:
             threads = self.vcpus
-            print(threads)
         with open(self.log_path + '/execution_' + self.flavor + '_.txt', 'a') as outfile:
             subprocess.call([self.create_instance_script, self.flavor, self.image,
                             self.keyname, self.instance_name, self.vol_name, 
