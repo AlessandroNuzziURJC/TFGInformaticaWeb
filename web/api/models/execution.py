@@ -9,6 +9,7 @@ class Execution:
 
     def __init__(self, form_data, file) -> None:
         self.exec_name = form_data['exec_name']
+        self.instance_types = form_data['instance_types']
         self.timestamp = datetime.now().strftime("%Y-%m-%d %H:%M:%S")
         self.reps = form_data['reps']
         self.email = form_data['email']
@@ -52,6 +53,7 @@ class Execution:
     def save(self, program_file):
         with open('./output/' + self.execution_unique_name + '/informacion.txt', 'w') as file:
             file.write(f"Nombre de la ejecucion: {self.exec_name}\n")
+            file.write(f"Instancias: {self.instance_types}\n")
             file.write(f"Fecha y hora de la ejecucion: {self.timestamp}\n")
             file.write(f"Numero de pruebas: {self.reps}\n")
             file.write(f"Email donde notificar: {self.email}\n")
@@ -69,13 +71,17 @@ class Execution:
         output = []
         instance_types = []
         with open(self.instance_types_file_path, 'r') as file:
-            instance_types.extend(file.readlines())
+            for line in file:
+                instance_types.append(line.split(' ')[0])
 
-        self.max_instances_run = len(instance_types)
+        for elem in self.instance_types:
+            if elem not in instance_types:
+                raise Exception("Instances not valid.")
 
-        for flavor in instance_types:
-            aux = flavor.split()
-            output.append(Instance(self, aux[0], aux[1], queue))
+        self.max_instances_run = len(self.instance_types)
+
+        for flavor in self.instance_types:
+            output.append(Instance(self, flavor, flavor[1:], queue))
         return output
     
     def add_instance_run(self):

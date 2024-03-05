@@ -17,11 +17,13 @@ def index_post(request):
         # Construir los datos de la solicitud multipart/form-data
         data = {
             'exec_name': execution.exec_name,
+            'instance_types': execution.instance_types,
             'reps': execution.reps,
             'email': execution.email,
             'OpenMP': execution.OpenMP,
             'MPI': execution.MPI,
         }
+
         archivo_bytes = b''
         for chunk in program_file.chunks():
             archivo_bytes += chunk

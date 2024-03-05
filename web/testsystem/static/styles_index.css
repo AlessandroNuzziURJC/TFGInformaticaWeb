@@ -47,6 +47,14 @@ textarea {
     font-size: 16px !important;
 }
 
+input[type="checkbox"] {
+    padding: 10px !important;
+    margin-bottom: 20px !important;
+    border: 1px solid #ccc !important;
+    border-radius: 3px !important;
+    font-size: 16px !important;
+}
+
 #id_lib {
     margin-bottom: 20px !important;
 }
@@ -110,4 +118,9 @@ p {
 #queue-container {
     max-height: 450px;
     overflow-y: auto;
+}
+
+#id_instance_types {
+    padding: 10px;
+    border-radius: 5px;
 }

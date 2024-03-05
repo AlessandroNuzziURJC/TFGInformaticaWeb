@@ -4,10 +4,9 @@
     <label>Nombre (identificador) de la ejecución</label> 
     <img id="name" title="El identificador de la ejecución permite dar un nombre a la ejecución que desea probar. De esta manera, se facilitará el acceso a los resultados." align="right" src="{% static 'help.png' %}" style="height: 1em; margin-bottom: 5px; margin-right: 20px;">
     {{ form.exec_name }}
-    <!--label>Selección del tipo de instancia</label> 
+    <label>Selección del tipo de instancia (Admite selección múltiple)</label> 
     <img id="instance_type" title="Permite seleccionar qué tipo de instancia utilizar para realizar la ejecución del programa." align="right" src="{% static 'help.png' %}" style="height: 1em; margin-bottom: 5px; margin-right: 20px;">
-    {{ form.instance_type }}
-    <-->
+    {{ form.instance_types }}
     <label>Número de repeticiones por cada cada configuración de hilo</label> 
     <img id="repetitions" title="Permite seleccionar el número de repeticiones por cada hilo que se añada a la ejecución." align="right" src="{% static 'help.png' %}" style="height: 1em; margin-bottom: 5px; margin-right: 20px;">
     {{ form.reps }}

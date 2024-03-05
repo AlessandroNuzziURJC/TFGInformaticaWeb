@@ -5,6 +5,7 @@ class Execution:
     def __init__(self, form_data=None, file=None, execution_unique_name=None) -> None:
         if execution_unique_name == None:
             self.exec_name = form_data['exec_name']
+            self.instance_types = form_data['instance_types']
             self.reps = form_data['reps']
             self.email = form_data['email']
             file_content = ""
@@ -27,6 +28,7 @@ class Execution:
         """
         with open('./output/' + execution_unique_name + '/informacion.txt', 'r') as f:
             self.exec_name = f.readline().split(':')[1]
+            self.instance_types = f.readline().split(':')[1]
             self.timestamp = datetime.strptime(f.readline().split(': ')[1].strip(), "%Y-%m-%d %H:%M:%S")
             self.reps = int(f.readline().split(':')[1].strip())
             self.email = f.readline().split(':')[1].strip()

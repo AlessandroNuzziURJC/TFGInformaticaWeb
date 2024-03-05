@@ -22,9 +22,9 @@ class ExecutionQueue:
             return execution
         return None
     
-    def pop_executing_queue(self):
+    def pop_executing_queue(self, execution):
         if len(self.executing_queue) > 0:
-            return self.executing_queue.popleft()
+            return self.executing_queue.remove(execution)
         return None
     
     def is_empty(self):

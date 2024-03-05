@@ -34,7 +34,7 @@ class Instance(threading.Thread):
         self.create_instance()
         with self.lock:
             if self.execution.add_instance_run():
-                self.queue.pop_executing_queue()
+                self.queue.pop_executing_queue(self.execution)
                 email = EmailSender(self.execution.exec_name, self.execution.email)
                 email.send()
 

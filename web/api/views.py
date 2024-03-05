@@ -21,6 +21,7 @@ def enqueue(request):
         try:
             aux = dict()
             aux['exec_name'] = request.POST.get('exec_name')
+            aux['instance_types'] = request.POST.getlist('instance_types')
             aux['reps'] = int(request.POST.get('reps'))
             aux['email'] = request.POST.get('email')
             aux['OpenMP'] = request.POST.get('OpenMP') == 'True'

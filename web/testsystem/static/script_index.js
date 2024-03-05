@@ -8,6 +8,18 @@ function validate() {
         output = false;
     }
 
+    var checkboxes_div = document.getElementById('id_instance_types');
+    var checkboxes = document.querySelectorAll('#id_instance_types input[type="checkbox"]');
+    var atLeastOneChecked = Array.prototype.slice.call(checkboxes).some(function(checkbox) {
+        return checkbox.checked;
+    });
+    if (!atLeastOneChecked) {
+        checkboxes_div.style.backgroundColor = 'rgba(255, 0, 0, 0.1)';
+        checkboxes_div.focus();
+        checkboxes_div.scrollIntoView();
+        output = false;
+    }
+
     var id_reps = document.getElementById('id_reps');
     if (id_reps.value.trim() === '') {
         id_reps.style.backgroundColor = 'rgba(255, 0, 0, 0.1)';
