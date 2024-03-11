@@ -1,16 +1,16 @@
 import shutil
 from django.shortcuts import render, redirect
 from django.http import HttpResponse
-from testsystem.views.configuration_form import ConfigurationForm
-from testsystem.views.prices_form import PricesForm
+from frontend.views.configuration_form import ConfigurationForm
+from frontend.views.prices_form import PricesForm
 from django.urls import reverse
 from django.conf import settings
 import os
 import requests
 
-from testsystem.models.connection import Openstack_Service
+from frontend.models.connection import Openstack_Service
 
-file_path = os.path.join(settings.BASE_DIR, 'testsystem/files')
+file_path = os.path.join(settings.BASE_DIR, 'frontend/files')
 
 
 def configuration(request):

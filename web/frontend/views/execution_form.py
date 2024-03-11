@@ -5,7 +5,7 @@ from django.conf import settings
 class InfoForm(forms.Form):
     exec_name = forms.CharField(max_length=100)
     
-    instance_types_file = os.path.join(settings.BASE_DIR, 'testsystem', 'files', 'instance_types.txt')  # Ruta al archivo de texto
+    instance_types_file = os.path.join(settings.BASE_DIR, 'frontend', 'files', 'instance_types.txt')  # Ruta al archivo de texto
 
     # Lee los tipos de instancia desde el archivo de texto y los convierte en una lista de tuplas
     with open(instance_types_file, "r") as f:

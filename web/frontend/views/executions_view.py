@@ -5,10 +5,10 @@ import shutil
 from django.http import HttpResponse
 from django.http import JsonResponse
 
-from testsystem.models.execution import Execution
-from testsystem.models.executions_info import ExecutionsInfo
-from testsystem.models.zip_generator import ZipGenerator
-from testsystem.models.data_extractor import DataExtractor
+from frontend.models.execution import Execution
+from frontend.models.executions_info import ExecutionsInfo
+from frontend.models.zip_generator import ZipGenerator
+from frontend.models.data_extractor import DataExtractor
 
 def executions(request):
     """
@@ -58,7 +58,7 @@ def delete_execution(request, execution_unique_name):
         print(f'Directorio {execution_unique_name} no encontrado.')
     except OSError as e:
         print(f'Error al eliminar el directorio {execution_unique_name}: {e}')
-    return redirect('/testsystem/executions/')
+    return redirect('/frontend/executions/')
 
 def execution(request, execution_unique_name):
     """

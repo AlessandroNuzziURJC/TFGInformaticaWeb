@@ -1,8 +1,8 @@
 from django.shortcuts import render, redirect
 from django.urls import reverse
 from django.http import JsonResponse
-from testsystem.views.execution_form import InfoForm
-from testsystem.models.execution import Execution
+from frontend.views.execution_form import InfoForm
+from frontend.models.execution import Execution
 import requests
 import os
 from django.conf import settings
@@ -33,11 +33,11 @@ def index_post(request):
         response = requests.post(absolute_url, data=data, files=files)
 
         if response.status_code == 200:
-            return redirect('/testsystem/index/')
+            return redirect('/frontend/index/')
         else:
-            return redirect('/testsystem/index/')
+            return redirect('/frontend/index/')
     else:
-        return redirect('/testsystem/index/')
+        return redirect('/frontend/index/')
 
 
 def index(request):
@@ -66,7 +66,7 @@ def form(request):
     return JsonResponse({'form': form_html}, content_type='text/html')
 
 def verified_user():
-    file_path = os.path.join(settings.BASE_DIR, 'testsystem/files/user_data.txt')
-    prices_path = os.path.join(settings.BASE_DIR, 'testsystem/files/prices.txt')
+    file_path = os.path.join(settings.BASE_DIR, 'frontend/files/user_data.txt')
+    prices_path = os.path.join(settings.BASE_DIR, 'frontend/files/prices.txt')
     return os.path.exists(file_path) and os.path.exists(prices_path)
 

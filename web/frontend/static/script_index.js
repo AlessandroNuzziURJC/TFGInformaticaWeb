@@ -49,7 +49,7 @@ function validate() {
 }
 
 document.addEventListener('DOMContentLoaded', function () {
-    fetch('/testsystem/index_form/')
+    fetch('/p3co/index_form/')
         .then(response => response.json())
         .then(data => {
             console.log(data.form);

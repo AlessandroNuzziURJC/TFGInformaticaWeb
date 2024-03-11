@@ -11,7 +11,7 @@ class Openstack_Service():
     conn = None
 
     def __init__(self) -> None:
-        file_path = os.path.join(settings.BASE_DIR, 'testsystem/files')
+        file_path = os.path.join(settings.BASE_DIR, 'frontend/files')
         for file_name in os.listdir(file_path):
             if file_name.endswith('.yaml'):
                 with open(file_path + '/' + file_name, 'r') as file:

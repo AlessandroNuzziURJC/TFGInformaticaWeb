@@ -155,7 +155,7 @@
 
         function fetchAndCreateChartTimes() {
             const instance_name = "{{ execution_unique_name }}";
-            return fetch('/testsystem/data/times/' + instance_name)
+            return fetch('/p3co/data/times/' + instance_name)
                 .then(response => {
                     if (!response.ok) {
                         throw new Error(`No se pudo obtener los datos para el hilo: ${instance_name}`);
@@ -239,7 +239,7 @@
     <script>
             function fetchAndCreateChart() {
                 const instance_name = "{{ execution_unique_name }}";
-                return fetch('/testsystem/data/costs/' + instance_name)
+                return fetch('/p3co/data/costs/' + instance_name)
                     .then(response => {
                         if (!response.ok) {
                             throw new Error(`No se pudo obtener los datos para el hilo: ${instance_name}`);
