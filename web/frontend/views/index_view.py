@@ -33,11 +33,11 @@ def index_post(request):
         response = requests.post(absolute_url, data=data, files=files)
 
         if response.status_code == 200:
-            return redirect('/frontend/index/')
+            return redirect('/p3co/index/')
         else:
-            return redirect('/frontend/index/')
+            return redirect('/p3co/index/')
     else:
-        return redirect('/frontend/index/')
+        return redirect('/p3co/index/')
 
 
 def index(request):

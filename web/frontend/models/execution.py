@@ -28,7 +28,7 @@ class Execution:
         """
         with open('./output/' + execution_unique_name + '/informacion.txt', 'r') as f:
             self.exec_name = f.readline().split(':')[1]
-            self.instance_types = f.readline().split(':')[1]
+            self.instance_types = eval(f.readline().split(':')[1])
             self.timestamp = datetime.strptime(f.readline().split(': ')[1].strip(), "%Y-%m-%d %H:%M:%S")
             self.reps = int(f.readline().split(':')[1].strip())
             self.email = f.readline().split(':')[1].strip()
@@ -36,12 +36,24 @@ class Execution:
             self.MPI = f.readline().split(':')[1].strip().__contains__('True')
             self.execution_unique_name = execution_unique_name
 
+        with open('./output/' + execution_unique_name + '/installation_time.txt', 'r') as f:
+            aux = 0
+            aggregate = 0
+            for line in f.readlines():
+                aux += 1
+                aggregate += float(line)
+            self.installation_time = round(aggregate/aux, 2)
+
 
     def get_execution_info(self):
         output = {}
         output['exec_name'] = self.exec_name
         output['reps'] = self.reps
         output['email'] = self.email
+        aux_instance_list = []
+        for i in self.instance_types:
+            aux_instance_list.append(i + ' ')
+        output['instance_types'] = aux_instance_list
         aux = 'Ninguna'
         if self.OpenMP and self.MPI:
             aux = 'OpenMP y OpenMPI'
@@ -55,4 +67,5 @@ class Execution:
         output['date'] = timestamp_div[0]
         output['hour'] = timestamp_div[1]
         output['execution_unique_name'] = self.execution_unique_name
+        output['installation_time'] = self.installation_time
         return output

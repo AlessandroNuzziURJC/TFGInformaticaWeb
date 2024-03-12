@@ -46,6 +46,9 @@
                 <p>Nombre: {{ exec_name }}</p>
             </li>
             <li>
+                <p>Instancias: {% for i in instance_types %}{{ i }}{% endfor %}</p>
+            </li>
+            <li>
                 <p>Repeticiones por cada configuración de hilos: {{ reps }}</p>
             </li>
             <li>
@@ -59,6 +62,9 @@
             </li>
             <li>
                 <p>Hora de lanzamiento de la prueba: {{ hour }}</p>
+            </li>
+            <li>
+                <p>Duración media de la instalación: {{installation_time}}</p>
             </li>
         </ul>
         <!--p class="smallText">* Puede que la hora y fecha no coincidan con la de su ordenador ya que el cluster tiene
@@ -183,7 +189,7 @@
                         borderWidth: 2,
                         fill: false,
                         tension: 0,
-                        pointHoverRadius: 0, 
+                        pointHoverRadius: 0,
                     };
 
                     const lowerBound = {
@@ -193,7 +199,7 @@
                         borderWidth: 2,
                         fill: false,
                         tension: 0,
-                        pointHoverRadius: 0, 
+                        pointHoverRadius: 0,
                     };
 
                     const chartCanvas = document.querySelector('#times');
@@ -237,63 +243,63 @@
 
 
     <script>
-            function fetchAndCreateChart() {
-                const instance_name = "{{ execution_unique_name }}";
-                return fetch('/p3co/data/costs/' + instance_name)
-                    .then(response => {
-                        if (!response.ok) {
-                            throw new Error(`No se pudo obtener los datos para el hilo: ${instance_name}`);
-                        }
-                        return response.json();
-                    })
-                    .then(response => {
-                        const threads = response.threads;
+        function fetchAndCreateChart() {
+            const instance_name = "{{ execution_unique_name }}";
+            return fetch('/p3co/data/costs/' + instance_name)
+                .then(response => {
+                    if (!response.ok) {
+                        throw new Error(`No se pudo obtener los datos para el hilo: ${instance_name}`);
+                    }
+                    return response.json();
+                })
+                .then(response => {
+                    const threads = response.threads;
 
-                        const urjc = {
-                            label: "U.R.J.C.",
-                            data: response.urjc,
-                            borderColor: 'rgba(0, 150, 150)',
-                            borderWidth: 2,
-                        };
+                    const urjc = {
+                        label: "U.R.J.C.",
+                        data: response.urjc,
+                        borderColor: 'rgba(0, 150, 150)',
+                        borderWidth: 2,
+                    };
 
-                        const chartCanvas = document.querySelector('#costs');
+                    const chartCanvas = document.querySelector('#costs');
 
-                        new Chart(chartCanvas, {
-                            type: 'line',
-                            data: {
-                                labels: threads,
-                                datasets: [urjc],
+                    new Chart(chartCanvas, {
+                        type: 'line',
+                        data: {
+                            labels: threads,
+                            datasets: [urjc],
+                        },
+                        options: {
+                            scales: {
+                                xAxes: [{
+                                    scaleLabel: {
+                                        display: true,
+                                        labelString: 'Instancias usadas',
+                                    },
+                                }],
+                                yAxes: [{
+                                    ticks: {
+                                        beginAtZero: true
+                                    },
+                                    scaleLabel: {
+                                        display: true,
+                                        labelString: 'Coste (Euros)',
+                                    },
+                                }],
                             },
-                            options: {
-                                scales: {
-                                    xAxes: [{
-                                        scaleLabel: {
-                                            display: true,
-                                            labelString: 'Instancias usadas',
-                                        },
-                                    }],
-                                    yAxes: [{
-                                        ticks: {
-                                            beginAtZero: true
-                                        },
-                                        scaleLabel: {
-                                            display: true,
-                                            labelString: 'Coste (Euros)',
-                                        },
-                                    }],
-                                },
-                            }
-                        });
-                    })
-                    .catch(error => {
-                        console.error(`Error para el hilo ${instance_name}:`, error);
+                        }
                     });
-            }
+                })
+                .catch(error => {
+                    console.error(`Error para el hilo ${instance_name}:`, error);
+                });
+        }
 
-            document.addEventListener("DOMContentLoaded", function () {
-                fetchAndCreateChart();
-            });
-        </script>
+        document.addEventListener("DOMContentLoaded", function () {
+            fetchAndCreateChart();
+        });
+    </script>
     <footer>
 
     </footer>

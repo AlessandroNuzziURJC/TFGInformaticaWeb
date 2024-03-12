@@ -58,7 +58,7 @@ def delete_execution(request, execution_unique_name):
         print(f'Directorio {execution_unique_name} no encontrado.')
     except OSError as e:
         print(f'Error al eliminar el directorio {execution_unique_name}: {e}')
-    return redirect('/frontend/executions/')
+    return redirect('/p3co/executions/')
 
 def execution(request, execution_unique_name):
     """
