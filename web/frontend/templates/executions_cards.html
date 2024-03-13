@@ -1,0 +1,32 @@
+{% load static %}
+{% for card in cards %}
+<div class="col-12">
+    <div class="row">
+        <div class="col-1"></div>
+        <div class="col-10 card">
+            <div class="row">
+                <div class="col-8">
+                    <h2>{{ card.name }}</h2>
+                    <p>Fecha de ejecución: {{ card.date }}</p>
+                    <p>Hora: {{ card.hour }}</p>
+                </div>
+                <div class="col-4">
+                    <div class="row">
+                        <div class="col-12">
+                            <button type="button" class="blueButton"
+                                onclick="window.location.href='/p3co/executions/' + '{{ card.execution_unique_name }}'">Detalles
+                                ejecución</button>
+                        </div>
+                        <div class="col-12">
+                            <button type="button" class="redButton"
+                                onclick="window.location.href='/p3co/executions/delete/' + '{{ card.execution_unique_name }}'">Eliminar
+                                ejecución</button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="col-1"></div>
+    </div>
+</div>
+{% endfor %}

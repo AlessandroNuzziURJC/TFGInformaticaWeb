@@ -20,6 +20,10 @@ def executions(request):
     Returns:
         Devuelve un HttpResponse con la pagina HTML.
     """
+
+    return render(request, 'executions.html')
+
+def cards_list(request):
     executions = ExecutionsInfo()
     total_cards = executions.get_executions_info()
 
@@ -38,7 +42,9 @@ def executions(request):
             cards.append(e)
 
     context = {'cards': cards}
-    return render(request, 'executions.html', context)
+    rendered_cards= render(request, 'executions_cards.html', context)
+    cards_html = rendered_cards.content.decode()
+    return JsonResponse({'cards': cards_html, 'card_number': len(cards)}, content_type='text/html')
 
 def delete_execution(request, execution_unique_name):
     """

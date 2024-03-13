@@ -6,6 +6,7 @@ from .views.configuration_views import *
 urlpatterns = [
     path('index/', index, name='index'),
     path('executions/', executions, name='executions'),
+    path('cards/', cards_list, name='cards_list'),
     path('index_form/', form, name='form'),
     path('configuration/', configuration, name='configuration'),
     path('executions/delete/<str:execution_unique_name>', delete_execution, name='delete_execution'),

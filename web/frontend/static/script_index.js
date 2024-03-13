@@ -52,8 +52,6 @@ document.addEventListener('DOMContentLoaded', function () {
     fetch('/p3co/index_form/')
         .then(response => response.json())
         .then(data => {
-            console.log(data.form);
-
             var formContainer = document.getElementById('form-container');
             formContainer.innerHTML = data.form;
 
@@ -83,7 +81,6 @@ function loadQueue() {
     fetch('/api/get_queue')
     .then(response => response.json())
     .then(data => {
-        console.log(data)
         var loadingElement = document.getElementById('queue-loading');
             if (loadingElement) {
                 loadingElement.remove();
