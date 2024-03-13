@@ -36,14 +36,6 @@ class Execution:
             self.MPI = f.readline().split(':')[1].strip().__contains__('True')
             self.execution_unique_name = execution_unique_name
 
-        with open('./output/' + execution_unique_name + '/installation_time.txt', 'r') as f:
-            aux = 0
-            aggregate = 0
-            for line in f.readlines():
-                aux += 1
-                aggregate += float(line)
-            self.installation_time = round(aggregate/aux, 2)
-
 
     def get_execution_info(self):
         output = {}
@@ -67,5 +59,4 @@ class Execution:
         output['date'] = timestamp_div[0]
         output['hour'] = timestamp_div[1]
         output['execution_unique_name'] = self.execution_unique_name
-        output['installation_time'] = self.installation_time
         return output

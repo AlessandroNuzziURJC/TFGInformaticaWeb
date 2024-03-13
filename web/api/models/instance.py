@@ -48,7 +48,7 @@ class Instance(threading.Thread):
 
         """
         aux_output = './output/' + self.execution_unique_name +'/results/c_' + self.flavor[1:] + '_.txt'
-        installation_time = './output/' + self.execution_unique_name + '/installation_time.txt'
+        installation_time = './output/' + self.execution_unique_name + '/installation_time/' + self.flavor + '.txt'
         threads = 0
         if self.execution.MPI or self.execution.OpenMP:
             threads = self.vcpus

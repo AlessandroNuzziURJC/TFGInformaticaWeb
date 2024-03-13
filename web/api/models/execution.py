@@ -50,6 +50,9 @@ class Execution:
         if not os.path.exists('./output/' + self.execution_unique_name + '/program'):
             os.makedirs('./output/' + self.execution_unique_name + '/program')
 
+        if not os.path.exists('./output/' + self.execution_unique_name + '/installation_time'):
+            os.makedirs('./output/' + self.execution_unique_name + '/installation_time')
+
     def save(self, program_file):
         with open('./output/' + self.execution_unique_name + '/informacion.txt', 'w') as file:
             file.write(f"Nombre de la ejecucion: {self.exec_name}\n")

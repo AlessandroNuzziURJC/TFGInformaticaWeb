@@ -45,10 +45,20 @@ class DataExtractor:
             with open('./output/' + self.execution_unique_name + '/results/' + file, 'r') as archivo:
                 for l in archivo:
                     aux.append(float(l))
-            output[file[:-4]] = aux
+            output[re.sub(r'[^a-zA-Z0-9]', '', file[:-4])] = aux
 
-        return {'data': output, 'threads': list(
-            map(lambda x: re.split('_', x)[1], files))}
+        install = {}
+        files_install = sorted(os.listdir('./output/' + self.execution_unique_name + '/installation_time'))
+        for file in files_install:
+            aux = []
+            with open('./output/' + self.execution_unique_name + '/installation_time/' + file, 'r') as archivo:
+                for l in archivo:
+                    aux.append(float(l))
+            install[file[:-4]] = aux
+
+        return {'data': output, 
+                'threads': list(map(lambda x: re.split('_', x)[1], files)), 
+                'install': install}
     
     def extract_cost(self):
         """
@@ -60,7 +70,10 @@ class DataExtractor:
             Devuelve un diccionario con los datos.
         """
         output = {'urjc': [],
+                    'urjc_installation': [],
                     'threads': 0}
+
+        aux_dict = {}
         files = sorted(os.listdir('./output/' + self.execution_unique_name + '/results'),
                        key=(lambda x: int(re.split('_', x)[1])))
         output['threads'] = list(map(lambda x: re.split('_', x)[1], files))
@@ -70,7 +83,17 @@ class DataExtractor:
             with open('./output/' + self.execution_unique_name + '/results/' + file, 'r') as archivo:
                 for l in archivo:
                     aux.append(float(l))
-            output['urjc'].append(round(self.prices[str(file[0]+file[2:4])] / 3600 * statistics.mean(aux), 9))
-        
+            aux_dict[re.sub(r'[^a-zA-Z0-9]', '', file[:-4])] = aux
+
+        for key, value in aux_dict.items():
+            aux = 0
+            aux_list = []
+            with open('./output/' + self.execution_unique_name + '/installation_time/' + key + '.txt', 'r') as text_file:
+                aux = float(text_file.readline())
+                output['urjc'].append(round(self.prices[key] / 3600 * statistics.mean(value), 9))
+                for elem in value:
+                    aux_list.append(elem + aux)
+                output['urjc_installation'].append(round(self.prices[key] / 3600 * statistics.mean(aux_list), 9))
+
         return output
 

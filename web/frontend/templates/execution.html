@@ -63,9 +63,6 @@
             <li>
                 <p>Hora de lanzamiento de la prueba: {{ hour }}</p>
             </li>
-            <li>
-                <p>Duración media de la instalación: {{installation_time}}</p>
-            </li>
         </ul>
         <!--p class="smallText">* Puede que la hora y fecha no coincidan con la de su ordenador ya que el cluster tiene
             hora GMT.</p-->
@@ -112,51 +109,77 @@
         <hr /-->
         <h4>Gráficas</h4>
         <p>
-            La siguiente gráfica muestra los tiempos de ejecución del software. En azul se muestra la media del tiempo
-            de ejecución y las líneas grises representan el intervalo de confianza al 95%.
+            La siguiente gráfica muestra los tiempos de ejecución y de ejecución + instalación del software. Además, se muestra el intervalo de confianza al 95% en ambas medidas.
         </p>
         <canvas id="times"></canvas>
         <p>
-            La siguiente gráfica muestra los costes de ejecución del software.
+            La siguiente gráfica muestra los costes de ejecución y de la ejecución + instalación del software.
         </p>
         <canvas id="costs"></canvas>
 
     </main>
 
     <script>
-        function calculateAverageAndBounds(data) {
-            var output = {
-                average: [],
-                upperBound: [],
-                lowerBound: []
-            };
+        function calculateMean(array) {
+            let sum = 0;
+            for (var i = 0; i < array.length; i++) {
+                sum += array[i];
+            }
+            console.log('Media:', sum);
+            var output = sum / array.length;
+            return output;
+        }
+
+        function calculateAllMean(data) {
+            let output = [];
             for (var key in data) {
                 if (data.hasOwnProperty(key) && Array.isArray(data[key])) {
-                    var sum = 0;
-                    var dataArray = data[key];
-                    var count = dataArray.length;
-
-                    for (var i = 0; i < count; i++) {
-                        sum += dataArray[i];
-                    }
-
-                    var mean = sum / count;
-                    output.average.push(mean);
-
-                    // Calcular la desviación estándar
-                    var squaredDifferencesSum = 0;
-                    for (var j = 0; j < count; j++) {
-                        squaredDifferencesSum += Math.pow(dataArray[j] - mean, 2);
-                    }
-                    var standardDeviation = Math.sqrt(squaredDifferencesSum / count);
-
-                    // Calcular el intervalo de confianza al 95%
-                    var marginOfError = 1.96 * (standardDeviation / Math.sqrt(count)); // 1.96 para el 95% de confianza
-                    output.upperBound.push(mean + marginOfError);
-                    output.lowerBound.push(mean - marginOfError);
+                    output.push(calculateMean(data[key]));
                 }
             }
             return output;
+        }
+
+        function addExecInstallTime(data, install){
+            let sum = {}
+            for (var key in data) {
+                let aux = []
+                for (let i = 0; i < data[key].length; i++) {
+                    aux.push(data[key][i] + install[key][0]);
+                    console.log(data[key][i]);
+                    console.log(install[key][0]);
+                    console.log(aux);
+                }
+                sum[key] = aux;
+            }
+            return sum;
+        }
+
+        function calculateTypicalDeviation(array, mean) {
+            let squaredDifferencesSum = 0;
+            for (var j = 0; j < array.length; j++) {
+                squaredDifferencesSum += Math.pow(array[j] - mean, 2);
+            }
+            let standardDeviation = Math.sqrt(squaredDifferencesSum / array.length);
+            return standardDeviation;
+        }
+
+        function calculateInterval(data, mean) {
+            let output = {
+                upperBound: [],
+                lowerBound: []
+            }
+            let index = 0;
+            for (var key in data) {
+                if (data.hasOwnProperty(key) && Array.isArray(data[key])) {
+                    let typicalDev = calculateTypicalDeviation(data[key], mean[index]);
+                    var marginOfError = 1.96 * (typicalDev / Math.sqrt(data[key].length)); // 1.96 para el 95% de confianza
+                    output.upperBound.push(mean[index] + marginOfError);
+                    output.lowerBound.push(mean[index] - marginOfError);
+                }
+                index++;
+            }
+            return output;            
         }
 
         function fetchAndCreateChartTimes() {
@@ -169,12 +192,15 @@
                     return response.json();
                 })
                 .then(response => {
-                    data = calculateAverageAndBounds(response.data);
-
                     const threads = response.threads;
-                    const datos = {
+                    const exec_mean = calculateAllMean(response.data);
+                    const interval_exec = calculateInterval(response.data, exec_mean);
+                    const sum = addExecInstallTime(response.data, response.install);
+                    const exec_install_mean = calculateAllMean(sum);
+                    const interval_exec_install = calculateInterval(sum, exec_install_mean);
+                    const execution = {
                         label: "Tiempo medio de ejecución",
-                        data: data.average,
+                        data: exec_mean,
                         borderColor: 'rgba(54, 162, 235)',
                         borderWidth: 2,
                         pointRadius: 5,
@@ -182,9 +208,19 @@
                         tension: 0,
                     };
 
-                    const upperBound = {
-                        label: "Upper Bound",
-                        data: data.upperBound,
+                    const install_exec = {
+                        label: "Tiempo medio de ejecución e instalación",
+                        data: exec_install_mean,
+                        borderColor: 'rgba(255, 162, 235)',
+                        borderWidth: 2,
+                        pointRadius: 5,
+                        fill: false,
+                        tension: 0,
+                    };
+
+                    const upperBound_exec = {
+                        label: "Tiempo medio de ejecución (límite superior) intervalo de confianza al 95%",
+                        data: interval_exec.upperBound,
                         borderColor: 'rgba(145, 145, 145, 0.8)',
                         borderWidth: 2,
                         fill: false,
@@ -192,9 +228,29 @@
                         pointHoverRadius: 0,
                     };
 
-                    const lowerBound = {
-                        label: "Lower Bound",
-                        data: data.lowerBound,
+                    const lowerBound_exec = {
+                        label: "Tiempo medio de ejecución (límite inferior) intervalo de confianza al 95%",
+                        data: interval_exec.lowerBound,
+                        borderColor: 'rgba(211, 211, 211, 0.8)',
+                        borderWidth: 2,
+                        fill: false,
+                        tension: 0,
+                        pointHoverRadius: 0,
+                    };
+
+                    const upperBound_exec_install = {
+                        label: "Tiempo medio de ejecución e instalación (límite superior) intervalo de confianza al 95%",
+                        data: interval_exec_install.upperBound,
+                        borderColor: 'rgba(145, 145, 145, 0.8)',
+                        borderWidth: 2,
+                        fill: false,
+                        tension: 0,
+                        pointHoverRadius: 0,
+                    };
+
+                    const lowerBound_exec_install = {
+                        label: "Tiempo medio de ejecución e instalación (límite inferior) intervalo de confianza al 95%",
+                        data: interval_exec_install.lowerBound,
                         borderColor: 'rgba(211, 211, 211, 0.8)',
                         borderWidth: 2,
                         fill: false,
@@ -208,7 +264,7 @@
                         type: 'line',
                         data: {
                             labels: threads,
-                            datasets: [datos, upperBound, lowerBound],
+                            datasets: [execution, install_exec, upperBound_exec, lowerBound_exec, upperBound_exec_install, lowerBound_exec_install]
                         },
                         options: {
                             scales: {
@@ -256,11 +312,18 @@
                     const threads = response.threads;
 
                     const urjc = {
-                        label: "U.R.J.C.",
+                        label: "Coste de ejecución",
                         data: response.urjc,
-                        borderColor: 'rgba(0, 150, 150)',
+                        borderColor: 'rgba(54, 162, 235)',
                         borderWidth: 2,
                     };
+
+                    const urjc_installation = {
+                        label: "Coste de ejecución e instalación",
+                        data: response.urjc_installation,
+                        borderColor: 'rgba(255, 162, 235)',
+                        borderWidth: 2,
+                    }
 
                     const chartCanvas = document.querySelector('#costs');
 
@@ -268,7 +331,7 @@
                         type: 'line',
                         data: {
                             labels: threads,
-                            datasets: [urjc],
+                            datasets: [urjc, urjc_installation],
                         },
                         options: {
                             scales: {
