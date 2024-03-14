@@ -64,49 +64,7 @@
                 <p>Hora de lanzamiento de la prueba: {{ hour }}</p>
             </li>
         </ul>
-        <!--p class="smallText">* Puede que la hora y fecha no coincidan con la de su ordenador ya que el cluster tiene
-            hora GMT.</p-->
         <hr />
-        <!--h4>Resumen de tiempos completo</h4>
-            <p>La ejecución con arranque, instalación de software y eliminación de la instancia
-                ha sido:</p>
-            <ul>
-                {% for i in time_cost %}
-                <li> {{ i.0 }} segundos en la instancia {{ i.1 }}</li>
-                {% endfor %}
-            </ul>
-            <h4>Tabla resumen de costes</h4>
-            <table>
-                <thead>
-                    <tr>
-                        <th>Tipo de usuario</th>
-                        {% for i in header %}
-                        <th>{{ i }}</th>
-                        {% endfor %}
-                    </tr>
-                </thead>
-                <tbody>
-                    <tr>
-                        <td>Empresa privada</td>
-                        {% for i in private_company %}
-                        <td>{{ i }} €</td>
-                        {% endfor %}
-                    </tr>
-                    <tr>
-                        <td>Organismo oficial</td>
-                        {% for i in official_organization %}
-                        <td>{{ i }} €</td>
-                        {% endfor %}
-                    </tr>
-                    <tr>
-                        <td>U.R.J.C</td>
-                        {% for i in urjc %}
-                        <td>{{ i }} €</td>
-                        {% endfor %}
-                    </tr>
-                </tbody>
-            </table>
-        <hr /-->
         <h4>Gráficas</h4>
         <p>
             La siguiente gráfica muestra los tiempos de ejecución y de ejecución + instalación del software. Además, se muestra el intervalo de confianza al 95% en ambas medidas.
@@ -173,7 +131,7 @@
             for (var key in data) {
                 if (data.hasOwnProperty(key) && Array.isArray(data[key])) {
                     let typicalDev = calculateTypicalDeviation(data[key], mean[index]);
-                    var marginOfError = 1.96 * (typicalDev / Math.sqrt(data[key].length)); // 1.96 para el 95% de confianza
+                    var marginOfError = 1.96 * (typicalDev / Math.sqrt(data[key].length));
                     output.upperBound.push(mean[index] + marginOfError);
                     output.lowerBound.push(mean[index] - marginOfError);
                 }
