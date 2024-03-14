@@ -70,27 +70,7 @@ def configuration_post(request):
 
         relative_url = reverse('store_conf_files')
         absolute_url = request.build_absolute_uri(relative_url)
-        response = requests.post(absolute_url, files=files)
-        if response.status_code == 200:
-            #if os.path.exists(file_path):
-            #    shutil.rmtree(file_path)
-            #os.makedirs(file_path)
-            
-            ubication = os.path.join(
-                settings.MEDIA_ROOT, file_path, file_sh.name)
-            with open(ubication, 'wb') as file:
-                for chunk in file_sh.chunks():
-                    file.write(chunk)
-
-            ubication = os.path.join(
-                settings.MEDIA_ROOT, file_path, file_yaml.name)
-            with open(ubication, 'wb') as file:
-                for chunk in file_yaml.chunks():
-                    file.write(chunk)
-
-            #generate_info_txt()
-            os.remove(file_path + '/' + file_sh.name)
-            os.remove(file_path + '/' + file_yaml.name)
+        requests.post(absolute_url, files=files)
     form = PricesForm(request.POST, request.FILES)
 
     if form.is_valid():
@@ -103,32 +83,6 @@ def configuration_post(request):
                 line = f"{key}: {value}\n"
                 file.write(line)
     return redirect(reverse(configuration))
-
-
-'''def generate_info_txt():
-    openstack = Openstack_Service()
-    openstack.connect()
-    generate_file_user_data(openstack)
-    generate_file_instance_type(openstack)
-    openstack.disconnect()
-
-
-def generate_file_user_data(openstack):
-    path = os.path.join(
-        settings.BASE_DIR, file_path, 'user_data.txt')
-    with open(path, 'w') as file:
-        limits = openstack.get_limits()
-        for e in limits:
-            file.write(e + ': ' + str(limits[e]) + '\n')
-
-
-def generate_file_instance_type(openstack):
-    path = os.path.join(
-        settings.BASE_DIR, file_path, 'instance_types.txt')
-    with open(path, 'w') as file:
-        instances = openstack.instances_available()
-        for e in instances:
-            file.write(e + '\n')'''
 
 def price_file(request):
     response = None
