@@ -9,8 +9,6 @@ file_path = os.path.join(settings.BASE_DIR, 'files')
 class DataExtractor:
 
     instances_list = ['c04', 'c08', 'c16', 'c32']
-    #times = {'c04': 131.90803937117258, 'c08': 145.78145890235902, 'c16': 146.31223859786988, 'c32': 146.45875180562336}
-    times = {'c04': 105.3, 'c08': 118.067, 'c16': 118.3, 'c32': 119.2}
 
     def __init__(self, execution_unique_name):
         self.prices = self.extract_prices()

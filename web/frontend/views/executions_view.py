@@ -10,20 +10,32 @@ from frontend.models.executions_info import ExecutionsInfo
 from frontend.models.zip_generator import ZipGenerator
 from frontend.models.data_extractor import DataExtractor
 
+
 def executions(request):
     """
-    Rellena el template executions.html con las ejecuciones.
+    Renderiza la página de ejecuciones.
+
+    Rellena el template executions.html con las ejecuciones disponibles.
 
     Args:
-        request: HTTP Request.
+        request: Objeto HttpRequest.
 
     Returns:
-        Devuelve un HttpResponse con la pagina HTML.
+        Un HttpResponse con la página HTML renderizada.
     """
-
     return render(request, 'executions.html')
 
+
 def cards_list(request):
+    """
+    Retorna una lista de tarjetas de ejecución que ya han finalizado su ejecución.
+
+    Args:
+        request: Objeto HttpRequest.
+
+    Returns:
+        Un JsonResponse con el contenido HTML de las tarjetas y el número total de tarjetas.
+    """
     executions = ExecutionsInfo()
     total_cards = executions.get_executions_info()
 
@@ -42,18 +54,21 @@ def cards_list(request):
             cards.append(e)
 
     context = {'cards': cards}
-    rendered_cards= render(request, 'executions_cards.html', context)
+    rendered_cards = render(request, 'executions_cards.html', context)
     cards_html = rendered_cards.content.decode()
     return JsonResponse({'cards': cards_html, 'card_number': len(cards)}, content_type='text/html')
 
+
 def delete_execution(request, execution_unique_name):
     """
-        Elimina los datos de la ejecucion.
+    Elimina los datos de una ejecución.
 
     Args:
+        request: Objeto HttpRequest.
+        execution_unique_name: Identificador único de la ejecución a eliminar.
 
     Returns:
-
+        Redirecciona a la página de ejecuciones.
     """
     path = './output/' + str(execution_unique_name)
 
@@ -66,16 +81,19 @@ def delete_execution(request, execution_unique_name):
         print(f'Error al eliminar el directorio {execution_unique_name}: {e}')
     return redirect('/p3co/executions/')
 
+
 def execution(request, execution_unique_name):
     """
-    Rellena el template execution.html con los datos de la ejecucion correspondiente.
+    Renderiza la página de detalles de una ejecución.
+
+    Rellena el template execution.html con los datos de la ejecución correspondiente.
 
     Args:
-        request: HTTP Request.
-        execution_unique_name: identificador de la ejecucion.
+        request: Objeto HttpRequest.
+        execution_unique_name: Identificador único de la ejecución.
 
     Returns:
-        Devuelve un HttpResponse con la pagina HTML.
+        HttpResponse con la página HTML renderizada.
     """
     execution = Execution(execution_unique_name=execution_unique_name)
     output = execution.get_execution_info()
@@ -91,7 +109,7 @@ def datafiles(request, execution_unique_name):
         execution_unique_name: identificador de la ejecucion.
 
     Returns:
-        Devuelve un HttpResponse con el ZIP.
+        HttpResponse con el ZIP.
     """
     generator = ZipGenerator(execution_unique_name)
     output = generator.generate()
@@ -101,16 +119,17 @@ def datafiles(request, execution_unique_name):
     response['Content-Disposition'] = f'attachment; filename="{zip_name}"'
     return response
 
+
 def data_times(request, execution_unique_name):
     """
-    Devuelve los datos de una ejecucion para generar la grafica de tiempos en Javascript.
+    Retorna los datos necesarios para generar la gráfica de tiempos de una ejecución.
 
     Args:
-        request: HTTP Request.
-        execution_unique_name: identificador de la ejecucion.
+        request: Objeto HttpRequest.
+        execution_unique_name: Identificador único de la ejecución.
 
     Returns:
-        Devuelve un JsonResponse con los datos o una excepcion si algo no va bien.
+        JsonResponse con los datos necesarios para generar la gráfica o una excepción si ocurre algún error.
     """
     try:
         extractor = DataExtractor(execution_unique_name)
@@ -121,16 +140,17 @@ def data_times(request, execution_unique_name):
     except Exception as e:
         return JsonResponse({'error': str(e)}, status=500)
 
+
 def data_costs(request, execution_unique_name):
     """
-    Devuelve los datos de una ejecucion para generar la grafica de costes en Javascript.
+    Retorna los datos necesarios para generar la gráfica de costos de una ejecución.
 
     Args:
-        request: HTTP Request.
-        execution_unique_name: identificador de la ejecucion.
+        request: Objeto HttpRequest.
+        execution_unique_name: Identificador único de la ejecución.
 
     Returns:
-        Devuelve un JsonResponse con los datos o una excepcion si algo no va bien.
+        JsonResponse con los datos necesarios para generar la gráfica o una excepción si ocurre algún error.
     """
     try:
         extractor = DataExtractor(execution_unique_name)

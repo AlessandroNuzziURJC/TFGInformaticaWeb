@@ -12,10 +12,23 @@ file_path = os.path.join(settings.BASE_DIR, 'files')
 
 
 def configuration(request):
+    """
+    Muestra el formulario de configuración y los archivos existentes.
+
+    Si la solicitud es POST, procesa el formulario y los archivos cargados.
+    Si no existen los directorios y archivos necesarios, los crea.
+    Comprueba la existencia de archivos de configuración y devuelve su estado.
+
+    Args:
+        request: Objeto HttpRequest.
+
+    Returns:
+        HttpResponse con la página HTML renderizada.
+    """
     if request.method == 'POST':
         return configuration_post(request)
     form = ConfigurationForm()
-    if not os.path.exists(file_path):  
+    if not os.path.exists(file_path):
         os.makedirs(file_path)
 
     if not os.path.exists(file_path + '/instance_types.txt'):
@@ -37,7 +50,7 @@ def configuration(request):
         data = response.json()
         yaml_file_name = data.get('yaml_file_name')
         sh_file_name = data.get('sh_file_name')
-        
+
         if yaml_file_name is not None:
             yaml = True
             yaml_file = yaml_file_name
@@ -45,7 +58,7 @@ def configuration(request):
         if sh_file_name is not None:
             sh = True
             sh_file = sh_file_name
-    
+
     return render(request, 'configuration.html', {'form': form,
                                                   'prices_exist': exists_price_file(),
                                                   'prices_form_exist': prices_form_exist,
@@ -57,6 +70,18 @@ def configuration(request):
 
 
 def configuration_post(request):
+    """
+    Procesa el formulario de configuración enviado por el usuario.
+
+    Si el formulario es válido, carga los archivos .sh y .yaml y los envía al servicio api.
+    Si el formulario de precios es válido, guarda los datos en un archivo prices.txt.
+
+    Args:
+        request: Objeto HttpRequest.
+
+    Returns:
+        Redirecciona a la página de configuración.
+    """
     form = ConfigurationForm(request.POST, request.FILES)
     if form.is_valid():
         file_sh = request.FILES['file_sh']
@@ -75,7 +100,7 @@ def configuration_post(request):
 
     if form.is_valid():
         ubication = os.path.join(
-                settings.MEDIA_ROOT, file_path, 'prices.txt')
+            settings.MEDIA_ROOT, file_path, 'prices.txt')
         if os.path.exists(ubication):
             os.remove(ubication)
         with open(ubication, 'w') as file:
@@ -84,16 +109,33 @@ def configuration_post(request):
                 file.write(line)
     return redirect(reverse(configuration))
 
+
 def price_file(request):
+    """
+    Descarga el archivo de precios (prices.txt) si existe.
+
+    Args:
+        request: Objeto HttpRequest.
+
+    Returns:
+        HttpResponse con el archivo prices.txt si existe, o None si no existe.
+    """
     response = None
     with open(os.path.join(file_path, 'prices.txt'), 'rb') as f:
         response = HttpResponse(f.read(), content_type='application/txt')
         response['Content-Disposition'] = f'attachment; filename=prices.txt'
     return response
 
+
 def exists_price_file():
+    """
+    Comprueba si existe un archivo de precios (prices.txt).
+
+    Returns:
+        True si existe un archivo de precios, False de lo contrario.
+    """
     for file_name in os.listdir(file_path):
         if file_name == 'prices.txt':
             return True
-    
+
     return False
