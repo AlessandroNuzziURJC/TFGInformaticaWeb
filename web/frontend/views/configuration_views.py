@@ -8,9 +8,7 @@ from django.conf import settings
 import os
 import requests
 
-from frontend.models.connection import Openstack_Service
-
-file_path = os.path.join(settings.BASE_DIR, 'frontend/files')
+file_path = os.path.join(settings.BASE_DIR, 'files')
 
 
 def configuration(request):
@@ -74,9 +72,9 @@ def configuration_post(request):
         absolute_url = request.build_absolute_uri(relative_url)
         response = requests.post(absolute_url, files=files)
         if response.status_code == 200:
-            if os.path.exists(file_path):
-                shutil.rmtree(file_path)
-            os.makedirs(file_path)
+            #if os.path.exists(file_path):
+            #    shutil.rmtree(file_path)
+            #os.makedirs(file_path)
             
             ubication = os.path.join(
                 settings.MEDIA_ROOT, file_path, file_sh.name)
@@ -90,7 +88,7 @@ def configuration_post(request):
                 for chunk in file_yaml.chunks():
                     file.write(chunk)
 
-            generate_info_txt()
+            #generate_info_txt()
             os.remove(file_path + '/' + file_sh.name)
             os.remove(file_path + '/' + file_yaml.name)
     form = PricesForm(request.POST, request.FILES)
@@ -107,7 +105,7 @@ def configuration_post(request):
     return redirect(reverse(configuration))
 
 
-def generate_info_txt():
+'''def generate_info_txt():
     openstack = Openstack_Service()
     openstack.connect()
     generate_file_user_data(openstack)
@@ -130,7 +128,7 @@ def generate_file_instance_type(openstack):
     with open(path, 'w') as file:
         instances = openstack.instances_available()
         for e in instances:
-            file.write(e + '\n')
+            file.write(e + '\n')'''
 
 def price_file(request):
     response = None

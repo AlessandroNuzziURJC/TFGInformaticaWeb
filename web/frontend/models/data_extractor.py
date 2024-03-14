@@ -4,7 +4,7 @@ import statistics
 from django.conf import settings
 from frontend.models.execution import Execution
 
-file_path = os.path.join(settings.BASE_DIR, 'frontend/files')
+file_path = os.path.join(settings.BASE_DIR, 'files')
 
 class DataExtractor:
 

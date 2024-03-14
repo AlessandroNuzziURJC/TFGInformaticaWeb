@@ -13,7 +13,7 @@ import yaml
 
 execution_queue = ExecutionQueue()
 file_path = os.path.join(settings.BASE_DIR, 'api/files')
-
+file_path_general = os.path.join(settings.BASE_DIR, 'files')
 
 @csrf_exempt
 def enqueue(request):
@@ -72,21 +72,7 @@ def store_conf_files(request):
                     for chunk in file_yaml.chunks():
                         file.write(chunk)
 
-                openstack = Openstack_Service()
-                openstack.connect()
-                path = os.path.join(
-                    settings.BASE_DIR, file_path, 'instance_types.txt')
-                with open(path, 'w') as file:
-                    instances = openstack.instances_available()
-                    for e in instances:
-                        file.write(e + ' ' + openstack.find_vcpus_used_in_flavor(e) +'\n')
-                
-                path = os.path.join(
-                    settings.BASE_DIR, file_path, 'key_testsystem.pem')
-                if os.path.exists(path):
-                    shutil.rmtree(path)
-                openstack.create_key(path, 'key_testsystem')
-                openstack.disconnect()
+                generate_info_txt()
 
                 adapt_sh_file(file_sh, file_yaml)
 
@@ -97,7 +83,46 @@ def store_conf_files(request):
             return JsonResponse({'error': 'Cannot change configuration during execution'}, status=405)
     else:
         return JsonResponse({"error": "Method not allowed"}, status=405)
+
+def generate_info_txt():
+    openstack = Openstack_Service()
+    openstack.connect()
+    generate_file_user_data(openstack, file_path_general)
+    generate_file_instance_type_api(openstack, file_path)
+    generate_file_instance_type_general(openstack, file_path_general)
+    generate_key(openstack, file_path)
+    openstack.disconnect()
+
+def generate_file_user_data(openstack, path_used):
+    path = os.path.join(
+        settings.BASE_DIR, path_used, 'user_data.txt')
+    with open(path, 'w') as file:
+        limits = openstack.get_limits()
+        for e in limits:
+            file.write(e + ': ' + str(limits[e]) + '\n')
+
+def generate_file_instance_type_general(openstack, path_used):
+    path = os.path.join(
+        settings.BASE_DIR, path_used, 'instance_types.txt')
+    with open(path, 'w') as file:
+        instances = openstack.instances_available()
+        for e in instances:
+            file.write(e + '\n')
+
+def generate_file_instance_type_api(openstack, path_used):
+    path = os.path.join(
+        settings.BASE_DIR, path_used, 'instance_types.txt')
+    with open(path, 'w') as file:
+        instances = openstack.instances_available()
+        for e in instances:
+            file.write(e + ' ' + openstack.find_vcpus_used_in_flavor(e) + '\n')
     
+def generate_key(openstack, path_used):
+    path = os.path.join(
+        settings.BASE_DIR, path_used, 'key_testsystem.pem')
+    if os.path.exists(path):
+        shutil.rmtree(path)
+    openstack.create_key(path, 'key_testsystem')
 
 def adapt_sh_file(file_sh, file_yaml):
     ubication_sh = os.path.join(

@@ -66,7 +66,7 @@ def form(request):
     return JsonResponse({'form': form_html}, content_type='text/html')
 
 def verified_user():
-    file_path = os.path.join(settings.BASE_DIR, 'frontend/files/user_data.txt')
-    prices_path = os.path.join(settings.BASE_DIR, 'frontend/files/prices.txt')
+    file_path = os.path.join(settings.BASE_DIR, 'files/user_data.txt')
+    prices_path = os.path.join(settings.BASE_DIR, 'files/prices.txt')
     return os.path.exists(file_path) and os.path.exists(prices_path)
 

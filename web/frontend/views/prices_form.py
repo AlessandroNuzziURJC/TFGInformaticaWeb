@@ -2,7 +2,7 @@ from django import forms
 from django.conf import settings
 import os
 
-file_path = os.path.join(settings.BASE_DIR, 'frontend/files')
+file_path = os.path.join(settings.BASE_DIR, 'files')
 
 class PricesForm(forms.Form):
     def __init__(self, *args, **kwargs):
