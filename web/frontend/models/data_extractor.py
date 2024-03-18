@@ -6,16 +6,45 @@ from frontend.models.execution import Execution
 
 file_path = os.path.join(settings.BASE_DIR, 'files')
 
+
 class DataExtractor:
+    """
+    Clase para extraer y procesar datos de ejecuciones.
+
+    Esta clase se utiliza para extraer datos relevantes de las ejecuciones,
+    como tiempos y costos, para su posterior procesamiento y visualización.
+
+    Attributes:
+        instances_list (list): Lista de tipos de instancias disponibles.
+        prices (dict): Diccionario que almacena los precios de los tipos de instancias.
+        execution_unique_name (str): Nombre único de la ejecución.
+        execution (Execution): Instancia de la clase Execution para acceder a datos de ejecuciones.
+    """
 
     instances_list = ['c04', 'c08', 'c16', 'c32']
 
     def __init__(self, execution_unique_name):
+        """
+        Inicializa la clase DataExtractor con el nombre único de la ejecución.
+
+        Args:
+            execution_unique_name (str): Nombre único de la ejecución.
+        """
+
         self.prices = self.extract_prices()
         self.execution_unique_name = execution_unique_name
         self.execution = Execution(execution_unique_name=execution_unique_name)
 
     def extract_prices(self):
+        """
+        Extrae los precios de los tipos de instancias desde un archivo.
+
+        Lee el archivo 'prices.txt' y extrae los precios de los tipos de instancias
+        para almacenarlos en un diccionario.
+
+        Returns:
+            dict: Diccionario que contiene los precios de los tipos de instancias.
+        """
         path = os.path.join(
             settings.BASE_DIR, file_path, 'prices.txt')
         output = {}
@@ -28,12 +57,13 @@ class DataExtractor:
 
     def extract_times(self):
         """
-        Trata los datos de tiempos de una ejecucion para la grafica en Javascript.
+        Extrae los datos de tiempos de una ejecución para su visualización.
 
-        Args:
+        Lee los archivos de resultados de la ejecución y los datos de instalación,
+        y los organiza en un formato adecuado para su visualización.
 
         Returns:
-            Devuelve un diccionario con los datos.
+            dict: Diccionario con los datos de tiempos y de instalación.
         """
         output = {}
         files = sorted(os.listdir('./output/' + self.execution_unique_name + '/results'),
@@ -46,7 +76,8 @@ class DataExtractor:
             output[re.sub(r'[^a-zA-Z0-9]', '', file[:-4])] = aux
 
         install = {}
-        files_install = sorted(os.listdir('./output/' + self.execution_unique_name + '/installation_time'))
+        files_install = sorted(os.listdir(
+            './output/' + self.execution_unique_name + '/installation_time'))
         for file in files_install:
             aux = []
             with open('./output/' + self.execution_unique_name + '/installation_time/' + file, 'r') as archivo:
@@ -54,22 +85,23 @@ class DataExtractor:
                     aux.append(float(l))
             install[file[:-4]] = aux
 
-        return {'data': output, 
-                'threads': list(map(lambda x: re.split('_', x)[1], files)), 
+        return {'data': output,
+                'threads': list(map(lambda x: re.split('_', x)[1], files)),
                 'install': install}
-    
+
     def extract_cost(self):
         """
-        Trata los datos de costes de una ejecucion para la grafica en Javascript.
+        Extrae los datos de costos de una ejecución para su visualización.
 
-        Args:
+        Calcula los costos de la ejecución, incluyendo costos de ejecución y de instalación,
+        y los organiza en un formato adecuado para su tratamiento en las gráficas.
 
         Returns:
-            Devuelve un diccionario con los datos.
+            dict: Diccionario con los datos de costos.
         """
         output = {'urjc': [],
-                    'urjc_installation': [],
-                    'threads': 0}
+                  'urjc_installation': [],
+                  'threads': 0}
 
         aux_dict = {}
         files = sorted(os.listdir('./output/' + self.execution_unique_name + '/results'),
@@ -88,10 +120,11 @@ class DataExtractor:
             aux_list = []
             with open('./output/' + self.execution_unique_name + '/installation_time/' + key + '.txt', 'r') as text_file:
                 aux = float(text_file.readline())
-                output['urjc'].append(round(self.prices[key] / 3600 * statistics.mean(value), 9))
+                output['urjc'].append(
+                    round(self.prices[key] / 3600 * statistics.mean(value), 9))
                 for elem in value:
                     aux_list.append(elem + aux)
-                output['urjc_installation'].append(round(self.prices[key] / 3600 * statistics.mean(aux_list), 9))
+                output['urjc_installation'].append(
+                    round(self.prices[key] / 3600 * statistics.mean(aux_list), 9))
 
         return output
-

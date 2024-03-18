@@ -85,7 +85,7 @@ def store_conf_files(request):
         return JsonResponse({"error": "Method not allowed"}, status=405)
 
 def generate_info_txt():
-    openstack = Openstack_Service()
+    openstack = OpenstackService()
     openstack.connect()
     generate_file_user_data(openstack, file_path_general)
     generate_file_instance_type_api(openstack, file_path)

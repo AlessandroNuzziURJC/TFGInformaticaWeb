@@ -1,8 +1,36 @@
 from datetime import datetime
 
+
 class Execution:
+    """
+    Clase para manejar la información de una ejecución.
+
+    Esta clase permite crear una instancia de una ejecución,
+    ya sea a partir de datos proporcionados mediante un formulario o desde archivos.
+
+    Attributes:
+        exec_name (str): Nombre de la ejecución.
+        instance_types (list): Tipos de instancia utilizados en la ejecución.
+        reps (int): Número de repeticiones de la ejecución.
+        email (str): Correo electrónico asociado a la ejecución.
+        OpenMP (bool): Indica si se utilizó OpenMP en la ejecución.
+        MPI (bool): Indica si se utilizó MPI en la ejecución.
+        execution_unique_name (str): Identificador único de la ejecución.
+        timestamp (datetime): Marca de tiempo de la ejecución.
+    """
 
     def __init__(self, form_data=None, file=None, execution_unique_name=None) -> None:
+        """
+        Inicializa la instancia de la ejecución.
+
+        Si se proporcionan form_data y file, se crea una nueva ejecución.
+        Si se proporciona execution_unique_name, se lee la información desde archivos.
+
+        Args:
+            form_data (dict): Datos del formulario.
+            file (file): Archivo enviado.
+            execution_unique_name (str): Identificador único de la ejecución.
+        """
         if execution_unique_name == None:
             self.exec_name = form_data['exec_name']
             self.instance_types = form_data['instance_types']
@@ -19,25 +47,30 @@ class Execution:
 
     def read_from_file(self, execution_unique_name):
         """
-            Lee los datos de la ejecucion desde los archivos.
+        Lee los datos de la ejecución desde los archivos.
 
         Args:
-            execution_unique_name: identificador de la ejecucion
-        Returns:
-
+            execution_unique_name (str): Identificador único de la ejecución.
         """
         with open('./output/' + execution_unique_name + '/informacion.txt', 'r') as f:
             self.exec_name = f.readline().split(':')[1]
             self.instance_types = eval(f.readline().split(':')[1])
-            self.timestamp = datetime.strptime(f.readline().split(': ')[1].strip(), "%Y-%m-%d %H:%M:%S")
+            self.timestamp = datetime.strptime(
+                f.readline().split(': ')[1].strip(), "%Y-%m-%d %H:%M:%S")
             self.reps = int(f.readline().split(':')[1].strip())
             self.email = f.readline().split(':')[1].strip()
-            self.OpenMP = f.readline().split(':')[1].strip().__contains__('True')
+            self.OpenMP = f.readline().split(
+                ':')[1].strip().__contains__('True')
             self.MPI = f.readline().split(':')[1].strip().__contains__('True')
             self.execution_unique_name = execution_unique_name
 
-
     def get_execution_info(self):
+        """
+        Obtiene la información de la ejecución en un formato adecuado para mostrar.
+
+        Returns:
+            dict: Diccionario con la información de la ejecución.
+        """
         output = {}
         output['exec_name'] = self.exec_name
         output['reps'] = self.reps

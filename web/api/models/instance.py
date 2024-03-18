@@ -4,6 +4,16 @@ import subprocess
 from .email_sender import *
 
 class Instance(threading.Thread):
+    """
+    Clase para manejar la creación y ejecución de instancias en hilos separados.
+
+    Attributes:
+        image (str): Imagen de la instancia.
+        lock (threading.Lock): Candado para evitar condiciones de carrera.
+        create_instance_script (str): Ruta al script de creación de instancia.
+        execute_program_script (str): Ruta al script de ejecución de programa.
+        delete_instance_script (str): Ruta al script de eliminación de instancia.
+    """
 
     image = 'debian11'
     lock = threading.Lock()
@@ -12,6 +22,15 @@ class Instance(threading.Thread):
     delete_instance_script = './api/scripts/deleteInstance.sh'
 
     def __init__(self, execution, flavor, vcpus, queue) -> None:
+        """
+        Inicializa la instancia de la clase Instance.
+
+        Args:
+            execution (Execution): Objeto Execution que contiene los datos de la ejecución.
+            flavor (str): Tipo de instancia.
+            vcpus (int): Número de CPUs de la instancia.
+            queue (Queue): Objeto Queue para gestionar las ejecuciones en la cola.
+        """
         self.execution_unique_name = execution.execution_unique_name
         self.keyname = 'key_testsystem'
         self.flavor = flavor
@@ -27,10 +46,19 @@ class Instance(threading.Thread):
         self.thread = None
 
     def start_thread(self):
+        """
+        Inicia un hilo para la ejecución de la instancia.
+        """
         self.thread = threading.Thread(target=self.run)
         self.thread.start()
 
     def run (self):
+        """
+        Ejecuta la creación y ejecución de la instancia en un hilo separado.
+
+        Cuando la ejecución se completa, si se añade correctamente a la instancia,
+        se elimina de la cola de ejecución y se envía un correo electrónico.
+        """
         self.create_instance()
         with self.lock:
             if self.execution.add_instance_run():
@@ -40,12 +68,13 @@ class Instance(threading.Thread):
 
     def create_instance(self):
         """
-        Ejecuta el script de creacion de instancia.
+        Llama al script de creación de instancia, ejecuta el programa y elimina la instancia.
 
         Args:
+            No recibe argumentos.
 
         Returns:
-
+            No devuelve nada.
         """
         aux_output = './output/' + self.execution_unique_name +'/results/c_' + self.flavor[1:] + '_.txt'
         installation_time = './output/' + self.execution_unique_name + '/installation_time/' + self.flavor + '.txt'

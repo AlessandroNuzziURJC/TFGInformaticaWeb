@@ -4,10 +4,34 @@ from django.conf import settings
 from .instance import *
 
 class Execution:
+    """
+    Representa una ejecución de programa con sus detalles.
+
+    Atributos:
+        instance_types_file_path (str): Ruta al archivo de tipos de instancia.
+        exec_name (str): Nombre de la ejecución.
+        instance_types (list): Lista de tipos de instancia.
+        timestamp (str): Marca de tiempo de la ejecución.
+        reps (int): Número de repeticiones de la ejecución.
+        email (str): Correo electrónico para notificaciones.
+        OpenMP (bool): Indicador de uso de OpenMP.
+        MPI (bool): Indicador de uso de MPI.
+        execution_unique_name (str): Nombre único de la ejecución.
+        status (str): Estado de la ejecución.
+        instances_run (int): Número de instancias en ejecución.
+        max_instances_run (int): Número máximo de instancias en ejecución.
+    """
 
     instance_types_file_path = os.path.join(settings.BASE_DIR, 'api/files/instance_types.txt')
 
     def __init__(self, form_data, file) -> None:
+        """
+        Inicializa una instancia de Execution.
+
+        Args:
+            form_data (dict): Datos del formulario.
+            file (File): Archivo de programa.
+        """
         self.exec_name = form_data['exec_name']
         self.instance_types = form_data['instance_types']
         self.timestamp = datetime.now().strftime("%Y-%m-%d %H:%M:%S")
@@ -23,17 +47,18 @@ class Execution:
         self.save(file)
 
     def to_dict(self):
+        """
+        Convierte los atributos de la ejecución en un diccionario.
+
+        Returns:
+            dict: Atributos de la ejecución.
+        """
         output = vars(self)
         return output
 
     def createdirs(self):
         """
-        Crea los directorios necesarios para la ejecucion.
-
-        Args:
-
-        Returns:
-
+        Crea los directorios necesarios para la ejecución.
         """
         if not os.path.exists('./output'):
             os.makedirs('./output')
@@ -54,6 +79,12 @@ class Execution:
             os.makedirs('./output/' + self.execution_unique_name + '/installation_time')
 
     def save(self, program_file):
+        """
+        Guarda los detalles de la ejecución y el programa.
+
+        Args:
+            program_file (File): Archivo de programa.
+        """
         with open('./output/' + self.execution_unique_name + '/informacion.txt', 'w') as file:
             file.write(f"Nombre de la ejecucion: {self.exec_name}\n")
             file.write(f"Instancias: {self.instance_types}\n")
@@ -71,6 +102,15 @@ class Execution:
                 destino.write(chunk)
 
     def create_instances(self, queue):
+        """
+        Crea instancias de ejecución.
+
+        Args:
+            queue (ExecutionQueue): Cola de ejecuciones.
+
+        Returns:
+            list: Lista de instancias creadas.
+        """
         output = []
         instance_types = []
         with open(self.instance_types_file_path, 'r') as file:
@@ -88,6 +128,12 @@ class Execution:
         return output
     
     def add_instance_run(self):
+        """
+        Añade una instancia ejecutada.
+
+        Returns:
+            bool: True si se ha alcanzado el límite de instancias ejecutadas, False en caso contrario.
+        """
         self.instances_run = self.instances_run + 1
         return self.instances_run == self.max_instances_run
 

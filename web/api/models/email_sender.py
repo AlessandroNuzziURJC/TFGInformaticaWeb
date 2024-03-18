@@ -3,10 +3,24 @@ from email.message import EmailMessage
 
 
 class EmailSender:
+    """
+    Clase para enviar correos electrónicos de notificación.
+
+    Atributos:
+        email_smtp (str): Servidor SMTP para el envío de correos electrónicos.
+        message (EmailMessage): Mensaje de correo electrónico a enviar.
+    """
 
     email_smtp = 'smtp.gmail.com'
 
     def __init__(self, exec_name, receiver):
+        """
+        Inicializa un objeto EmailSender con los datos del mensaje.
+
+        Args:
+            exec_name (str): Nombre de la ejecución.
+            receiver (str): Dirección de correo electrónico del receptor.
+        """
         self.message = EmailMessage()
         self.message['Subject'] = 'Ejecucion software cluster'
         self.message['From'] = 'clusterurjcnoreply@gmail.com'
@@ -16,12 +30,7 @@ class EmailSender:
 
     def send(self):
         """
-            Envia el correo electronico de notificacion.
-
-        Args:
-
-        Returns:
-
+        Envía el correo electrónico de notificación.
         """
         server = smtplib.SMTP(self.email_smtp, '587')
         server.ehlo()
