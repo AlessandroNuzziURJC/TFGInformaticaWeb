@@ -22,12 +22,15 @@ def daemon():
     """
     if os.path.exists(file_path):
         while True:
+            time.sleep(60)
+            print('Starting daemon check', time.ctime(time.time()))
             if exist_task():
-                time.sleep(60)
+                print('Found tasks', time.ctime(time.time()))
                 openstack = OpenstackService()
                 openstack.connect()
                 execute_task(openstack)
                 openstack.disconnect()
+                
 
 def execute_task(openstack):
     """
@@ -38,15 +41,29 @@ def execute_task(openstack):
 
     Returns:
     """
-    if len(priority_queue) > 0:
+    limits = openstack.get_limits()
+
+    free_vcpus = int(limits['maxTotalCores']) - int(limits['total_cores_used'])
+    free_instances = int(limits['instances']) - int(limits['instances_used'])
+
+
+    while free_vcpus > 0 and free_instances > 0:
+
+        if len(priority_queue) == 0:
+            if (not execution_queue.waiting_queue_is_empty()):
+                execution = execution_queue.next_execution()
+                priority_queue.extend(execution.create_instances(execution_queue))
+            else:
+                return
+
         next_instance = priority_queue[0]
         if openstack_instances_available(openstack, next_instance):
+            free_vcpus = free_vcpus - next_instance.vcpus
+            free_instances = free_instances - 1
             instance = priority_queue.popleft()
             instance.start_thread()
-    else:
-        if (not execution_queue.waiting_queue_is_empty()) and availability(openstack):
-            execution = execution_queue.next_execution()
-            priority_queue.extend(execution.create_instances(execution_queue))
+        else:
+            return
 
 
 def exist_task():
@@ -57,19 +74,6 @@ def exist_task():
         True si hay tareas pendientes, False de lo contrario.
     """
     return len(priority_queue) != 0 or not execution_queue.waiting_queue_is_empty()
-
-def availability(openstack):
-    """
-    Verifica la disponibilidad de recursos en OpenStack.
-
-    Args:
-        openstack: Servicio de OpenStack para la gestión de recursos.
-
-    Returns:
-        True si hay recursos disponibles, False de lo contrario.
-    """
-    limits = openstack.get_limits()
-    return int(limits['maxTotalCores']) - int(limits['total_cores_used']) > 0 and int(limits['instances']) - int(limits['instances_used']) > 0
 
 def openstack_instances_available(openstack, next_instance):
     """

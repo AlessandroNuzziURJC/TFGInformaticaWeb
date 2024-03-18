@@ -116,7 +116,7 @@ p {
 }
 
 #queue-container {
-    max-height: 450px;
+    max-height: 700px;
     overflow-y: auto;
 }
 
