@@ -29,12 +29,12 @@ class ExecutionsInfo:
         tarjetas = []
 
         for e in l:
-            name = e[22:].replace('__', ' ').title()
+            name = e[30:].replace('__', ' ').title()
             if len(name) > 17:
                 name = name[:17] + '...'
-            aux = e[:10].split('-')
+            aux = e[3:13].split('-')
             date = f"{aux[2]}-{aux[1]}-{aux[0]}"
-            hour = e[12:20]
+            hour = e[15:23]
 
             tarjetas.append({'name': name,
                             'date': date,

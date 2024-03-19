@@ -3,6 +3,19 @@ import os
 from django.conf import settings
 from .instance import *
 
+import threading
+
+class UniqueIdentifier:
+    _counter = 0
+    _lock = threading.Lock()
+
+    @classmethod
+    def generate(cls):
+        with cls._lock:
+            cls._counter += 1
+            return cls._counter
+
+
 class Execution:
     """
     Representa una ejecución de programa con sus detalles.
@@ -34,12 +47,12 @@ class Execution:
         """
         self.exec_name = form_data['exec_name']
         self.instance_types = form_data['instance_types']
-        self.timestamp = datetime.now().strftime("%Y-%m-%d %H:%M:%S")
+        self.timestamp = datetime.now().strftime("%Y-%m-%d %H:%M:%S:%f")
         self.reps = form_data['reps']
         self.email = form_data['email']
         self.OpenMP = form_data['OpenMP']
         self.MPI = form_data['MPI']
-        self.execution_unique_name = str(
+        self.execution_unique_name = str(str(UniqueIdentifier.generate()) + '__' +
             str(self.timestamp) + '__' + self.exec_name).replace(" ", "__")
         self.status = 'waiting'
         self.instances_run = 0

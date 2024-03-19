@@ -56,7 +56,7 @@ class Execution:
             self.exec_name = f.readline().split(':')[1]
             self.instance_types = eval(f.readline().split(':')[1])
             self.timestamp = datetime.strptime(
-                f.readline().split(': ')[1].strip(), "%Y-%m-%d %H:%M:%S")
+                f.readline().split(': ')[1].strip(), "%Y-%m-%d %H:%M:%S:%f")
             self.reps = int(f.readline().split(':')[1].strip())
             self.email = f.readline().split(':')[1].strip()
             self.OpenMP = f.readline().split(
