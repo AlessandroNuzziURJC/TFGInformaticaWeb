@@ -20,16 +20,15 @@ def daemon():
 
     Returns:
     """
-    if os.path.exists(file_path):
-        while True:
-            time.sleep(60)
-            print('Starting daemon check', time.ctime(time.time()))
-            if exist_task():
-                print('Found tasks', time.ctime(time.time()))
-                openstack = OpenstackService()
-                openstack.connect()
-                execute_task(openstack)
-                openstack.disconnect()
+    while True:
+        time.sleep(60)
+        print('Starting daemon check', time.ctime(time.time()))
+        if exist_task():
+            print('Found tasks', time.ctime(time.time()))
+            openstack = OpenstackService()
+            openstack.connect()
+            execute_task(openstack)
+            openstack.disconnect()
                 
 
 def execute_task(openstack):
