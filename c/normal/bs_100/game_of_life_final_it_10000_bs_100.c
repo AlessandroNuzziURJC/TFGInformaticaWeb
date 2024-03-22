@@ -1,8 +1,8 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <time.h>
-#define BOARD_SIZE 10
-#define ITERATION 10
+#define BOARD_SIZE 100
+#define ITERATION 10000
 
 int ** initialize_board_random() {
     int **board = (int **) malloc(sizeof(int*) * BOARD_SIZE);

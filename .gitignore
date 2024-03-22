@@ -3,3 +3,4 @@ files
 .env
 .DS_Store
 output
+.vscode
