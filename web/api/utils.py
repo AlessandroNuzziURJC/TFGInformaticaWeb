@@ -56,7 +56,7 @@ def execute_task(openstack):
                 return
 
         next_instance = priority_queue[0]
-        if openstack_instances_available(openstack, next_instance):
+        if free_vcpus >= next_instance.vcpus:
             free_vcpus = free_vcpus - next_instance.vcpus
             free_instances = free_instances - 1
             instance = priority_queue.popleft()
@@ -73,24 +73,6 @@ def exist_task():
         True si hay tareas pendientes, False de lo contrario.
     """
     return len(priority_queue) != 0 or not execution_queue.waiting_queue_is_empty()
-
-def openstack_instances_available(openstack, next_instance):
-    """
-    Verifica si hay suficientes recursos disponibles en OpenStack para la próxima instancia.
-
-    Args:
-        openstack: Servicio de OpenStack para la gestión de recursos.
-        next_instance: Próxima instancia a ejecutar.
-
-    Returns:
-        True si hay suficientes recursos disponibles, False de lo contrario.
-    """
-    limits = openstack.get_limits()
-    instances_available =  int(limits['instances']) - int(limits['instances_used'])
-    if instances_available == 0:
-        return False
-    cores_available = int(limits['maxTotalCores']) - int(limits['total_cores_used'])
-    return next_instance.vcpus <= cores_available
 
 
 thread_empty_executions = threading.Thread(target=daemon)
