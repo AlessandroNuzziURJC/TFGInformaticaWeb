@@ -2,18 +2,22 @@
 #include <stdlib.h>
 #include <time.h>
 #include <omp.h>
-#define BOARD_SIZE 15000
+#define BOARD_SIZE 100
+#define ITERATIONS 10000
 
 int ** initialize_board() {
-    srand(1234);
     int **board = (int **) malloc(sizeof(int*) * BOARD_SIZE);
     for (int i = 0; i < BOARD_SIZE; i++) {
         board[i] = (int *)malloc(sizeof(int) * BOARD_SIZE);
     }
 
-    for (int i = 0; i < BOARD_SIZE; i++) {
-        for (int j = 0; j < BOARD_SIZE; j++) {
-            board[i][j] = rand()%2;
+    #pragma omp parallel
+    {
+        #pragma omp for
+        for (int i = 0; i < BOARD_SIZE; i++) {
+            for (int j = 0; j < BOARD_SIZE; j++) {
+                board[i][j] = rand()%2;
+            }
         }
     }
 
@@ -26,9 +30,13 @@ int ** initialize_board_zero() {
         board[i] = (int *)malloc(sizeof(int) * BOARD_SIZE);
     }
 
-    for (int i = 0; i < BOARD_SIZE; i++) {
-        for (int j = 0; j < BOARD_SIZE; j++) {
-            board[i][j] = 0;
+    #pragma omp parallel
+    {
+        #pragma omp for
+        for (int i = 0; i < BOARD_SIZE; i++) {
+            for (int j = 0; j < BOARD_SIZE; j++) {
+                board[i][j] = 0;
+            }
         }
     }
 
@@ -47,15 +55,14 @@ void empty_board(int ** board) {
     }
 }
 
-/*void print_board(int ** board, FILE * fichero) {
+/*void print(int ** board) {
     for (int i = 0; i < BOARD_SIZE; i++) {
         for (int j = 0; j < BOARD_SIZE; j++) {
-            fprintf (fichero, "%d", board[i][j]);
+            printf("%d", board[i][j]);
         }
-        fprintf(fichero, "%s", "\n");
+        printf("\n");
     }
-    fprintf(fichero, "%s", "\n");
-
+    printf("\n");
 }*/
 
 int validate_position(int i, int j) {
@@ -117,20 +124,18 @@ int main(int argc, char *argv[]) {
     int** aux;
 
     omp_set_num_threads(threads);
+    srand(time(NULL));
 
     board = initialize_board();
     new_board = initialize_board_zero();
     
-    for (int iteration = 0; iteration < 1000; iteration ++) {
+    for (int iteration = 0; iteration < ITERATIONS; iteration ++) {
+        //print(board);
         advance(board, new_board);
         aux = board;
         board = new_board;
         new_board = aux;
         empty_board(new_board);
-        printf("Iteracion: %d\n", iteration);
-        time_t currentTime;
-        time(&currentTime);
-        printf("Timestamp: %ld\n", currentTime);
     }
 
     free_memory(board);
