@@ -4,8 +4,8 @@
 #include <string.h>
 #include <time.h>
 #include <unistd.h>
-#define BOARD_SIZE 1000
-#define REPS 10000
+#define BOARD_SIZE 4
+#define ITERATION 5
 
 typedef struct{
     int rank;
@@ -13,8 +13,8 @@ typedef struct{
     int board_length;
 } Process;
 
-int ** initialize_board(int board_div) {
-    srand(43);
+int ** initialize_board(int board_div, int rank) {
+    srand(time(NULL) + rank);
     int **board = (int **) malloc(sizeof(int*) * (board_div + 2));
     for (int i = 0; i < board_div + 2; i++) {
         board[i] = (int *)malloc(sizeof(int) * BOARD_SIZE);
@@ -35,6 +35,25 @@ int ** initialize_board(int board_div) {
     }
 
     return board;
+}
+
+int ** initialize_board_check(int board_div, int rank, int size) {
+    MPI_Status status;
+    int checked;
+    if (rank == 0) {
+        int** board = initialize_board(board_div, rank);
+        checked = 1;
+        MPI_Send(&checked, 1, MPI_INT, (rank+1)%size, 0, MPI_COMM_WORLD);
+        return board;
+    } else {
+        MPI_Recv(&checked, 1, MPI_INT, rank-1, 0,MPI_COMM_WORLD, &status);
+        int** board = initialize_board(board_div, rank);
+        if ((rank+1)%size != 0) {
+            checked = 1;
+            MPI_Send(&checked, 1, MPI_INT, (rank+1)%size, 0, MPI_COMM_WORLD);
+        }
+        return board;
+    }
 }
 
 int ** initialize_board_zero(int board_div) {
@@ -129,18 +148,15 @@ int check_life(int i, int j, int ** board) {
         return 0;
 }
 
-/*void print_board(int ** board, char* file_name, int length) {
-
-    FILE* fichero;
-    fichero = fopen(file_name, "a");
-    for (int i = 0; i < length + 2; i++) {
+/*void print(int ** board, Process *proc) {
+    printf("Process %d\n", proc->rank);
+    for (int i = 1; i < proc->board_length + 1; i++) {
         for (int j = 0; j < BOARD_SIZE; j++) {
-            fprintf (fichero, "%d", board[i][j]);
+            printf("%d", board[i][j]);
         }
-        fprintf(fichero, "%s", "\n");
+        printf("\n");
     }
-    fprintf(fichero, "%s", "\n");
-    fclose(fichero);
+    printf("\n");
 }*/
 
 
@@ -194,7 +210,7 @@ int main(int argc, char ** argv) {
     int** board;
     int** new_board;
     int** aux;
-    
+
     MPI_Init(NULL, NULL);
         
     MPI_Comm_rank(MPI_COMM_WORLD, &rank);
@@ -203,14 +219,15 @@ int main(int argc, char ** argv) {
     MPI_Comm_size(MPI_COMM_WORLD, &size);
 
     board_div = calculate_section(size, rank);
-    board = initialize_board(board_div);
+    board = initialize_board_check(board_div, rank, size);
 
     new_board = initialize_board_zero(board_div);
 
     Process process = {rank, size, board_div};
 
-    for (int iteration = 0; iteration < REPS; iteration ++) {
+    for (int iteration = 0; iteration < ITERATION; iteration ++) {
         advance(board, new_board, &process);
+        //print(board, &process);
         aux = board;
         board = new_board;
         new_board = aux;
@@ -219,6 +236,5 @@ int main(int argc, char ** argv) {
 
     MPI_Finalize();
 
-    //sleep(60);
     return 0;
 }
