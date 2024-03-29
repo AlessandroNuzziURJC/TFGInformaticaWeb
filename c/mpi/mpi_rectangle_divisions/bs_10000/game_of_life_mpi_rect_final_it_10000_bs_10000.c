@@ -162,9 +162,12 @@ int check_life(int i, int j, int ** board) {
 
 void advance(int ** board, int **new_board, Process *proc) {
     MPI_Status status;
+    int array_size = BOARD_SIZE / 10;
     if (proc->rank == 0) {
-        MPI_Send(board[proc->board_length], BOARD_SIZE, MPI_INT, 1, 0,MPI_COMM_WORLD);
-        MPI_Recv(board[proc->board_length + 1], BOARD_SIZE, MPI_INT, 1, 0,MPI_COMM_WORLD, &status);
+        for (int i = 0; i < 10; i++) {
+            MPI_Send(board[proc->board_length] + i * array_size, array_size, MPI_INT, 1, 0,MPI_COMM_WORLD);
+            MPI_Recv(board[proc->board_length + 1] + i * array_size, array_size, MPI_INT, 1, 0,MPI_COMM_WORLD, &status);
+        }
 
         //Calcular avance
         for (int i = 1; i < proc->board_length + 1; i++) {
@@ -175,8 +178,10 @@ void advance(int ** board, int **new_board, Process *proc) {
             }
         }
     } else if (proc->rank == proc->size - 1) {
-        MPI_Send(board[1], BOARD_SIZE, MPI_INT, proc->size - 2, 0,MPI_COMM_WORLD);
-        MPI_Recv(board[0], BOARD_SIZE, MPI_INT, proc->size - 2, 0,MPI_COMM_WORLD, &status);
+        for (int i = 0; i < 10; i++) {
+            MPI_Send(board[1] + i * array_size, array_size, MPI_INT, proc->size - 2, 0,MPI_COMM_WORLD);
+            MPI_Recv(board[0] + i * array_size, array_size, MPI_INT, proc->size - 2, 0,MPI_COMM_WORLD, &status);
+        }
 
         //Calcular avance
         for (int i = 1; i < proc->board_length + 1; i++) {
@@ -187,10 +192,12 @@ void advance(int ** board, int **new_board, Process *proc) {
             }
         }
     } else {
-        MPI_Send(board[1], BOARD_SIZE, MPI_INT, proc->rank - 1, 0,MPI_COMM_WORLD);
-        MPI_Send(board[proc->board_length], BOARD_SIZE, MPI_INT, proc->rank + 1, 0,MPI_COMM_WORLD);
-        MPI_Recv(board[0], BOARD_SIZE, MPI_INT, proc->rank - 1, 0,MPI_COMM_WORLD, &status);
-        MPI_Recv(board[proc->board_length + 1], BOARD_SIZE, MPI_INT, proc->rank + 1, 0,MPI_COMM_WORLD, &status);
+        for (int i = 0; i < 10; i++) {
+            MPI_Send(board[1] + i * array_size, array_size, MPI_INT, proc->rank - 1, 0,MPI_COMM_WORLD);
+            MPI_Send(board[proc->board_length] + i * array_size, array_size, MPI_INT, proc->rank + 1, 0,MPI_COMM_WORLD);
+            MPI_Recv(board[0] + i * array_size, array_size, MPI_INT, proc->rank - 1, 0,MPI_COMM_WORLD, &status);
+            MPI_Recv(board[proc->board_length + 1] + i * array_size, array_size, MPI_INT, proc->rank + 1, 0,MPI_COMM_WORLD, &status);
+        }
         
         //Calcular avance
         for (int i = 1; i < proc->board_length + 1; i++) {
@@ -228,6 +235,7 @@ int main(int argc, char ** argv) {
     for (int iteration = 0; iteration < ITERATION; iteration ++) {
         advance(board, new_board, &process);
         //print(board, &process);
+        //printf("Iteracion: %d\n", iteration);
         aux = board;
         board = new_board;
         new_board = aux;
