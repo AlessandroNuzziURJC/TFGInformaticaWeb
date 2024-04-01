@@ -144,16 +144,26 @@ int check_life(int i, int j, int ** board) {
 
 void advance(int ** board, int **new_board, Process *proc) {
     MPI_Status status;
+    int message_size = BOARD_SIZE / 10;
     int aux[proc->board_length + 2];
     if (proc->rank == 0) {
-        MPI_Send(board[proc->board_length], proc->board_length + 2, MPI_INT, 2, 0,MPI_COMM_WORLD);
-        MPI_Recv(board[proc->board_length + 1], proc->board_length + 2, MPI_INT, 2, 0,MPI_COMM_WORLD, &status);
+        for (int i = 0; i < 5; i++){
+            MPI_Send(board[proc->board_length] + i * message_size, message_size, MPI_INT, 2, 0,MPI_COMM_WORLD);
+            MPI_Recv(board[proc->board_length + 1] + i * message_size, message_size, MPI_INT, 2, 0,MPI_COMM_WORLD, &status);
+        }
+        MPI_Send(board[proc->board_length] + 5 * message_size, 2, MPI_INT, 2, 0,MPI_COMM_WORLD);
+        MPI_Recv(board[proc->board_length + 1] + 5 * message_size, 2, MPI_INT, 2, 0,MPI_COMM_WORLD, &status);
         
         for (int i = 0; i < proc->board_length + 2; i++) {
             aux[i]=board[i][proc->board_length];
         }
-        MPI_Send(aux, proc->board_length + 2, MPI_INT, 1, 0,MPI_COMM_WORLD);
-        MPI_Recv(aux, proc->board_length + 2, MPI_INT, 1, 0,MPI_COMM_WORLD, &status);
+        for (int i = 0; i < 5; i++){
+            MPI_Send(aux + i * message_size, message_size, MPI_INT, 1, 0,MPI_COMM_WORLD);
+            MPI_Recv(aux + i * message_size, message_size, MPI_INT, 1, 0,MPI_COMM_WORLD, &status);
+        }
+        
+        MPI_Send(aux +  5 * message_size, 2, MPI_INT, 1, 0,MPI_COMM_WORLD);
+        MPI_Recv(aux +  5 * message_size, 2, MPI_INT, 1, 0,MPI_COMM_WORLD, &status);
         for (int i = 0; i < proc->board_length + 2; i++) {
             board[i][proc->board_length + 1]=aux[i];
         }
@@ -167,14 +177,24 @@ void advance(int ** board, int **new_board, Process *proc) {
             }
         }
     } else if (proc->rank == 1) {
-        MPI_Send(board[proc->board_length], proc->board_length + 2, MPI_INT, 3, 0,MPI_COMM_WORLD);
-        MPI_Recv(board[proc->board_length + 1], proc->board_length + 2, MPI_INT, 3, 0,MPI_COMM_WORLD, &status);
+        for (int i = 0; i < 5; i++){
+            MPI_Send(board[proc->board_length]+ i * message_size, message_size, MPI_INT, 3, 0,MPI_COMM_WORLD);
+            MPI_Recv(board[proc->board_length + 1]+ i * message_size, message_size, MPI_INT, 3, 0,MPI_COMM_WORLD, &status);
+        }
+        MPI_Send(board[proc->board_length] + 5 * message_size, 2, MPI_INT, 3, 0,MPI_COMM_WORLD);
+        MPI_Recv(board[proc->board_length + 1] + 5 * message_size, 2, MPI_INT, 3, 0,MPI_COMM_WORLD, &status);
         
         for (int i = 0; i < proc->board_length + 2; i++) {
             aux[i]=board[i][1];
         }
-        MPI_Send(aux, proc->board_length + 2, MPI_INT, 0, 0,MPI_COMM_WORLD);
-        MPI_Recv(aux, proc->board_length + 2, MPI_INT, 0, 0,MPI_COMM_WORLD, &status);
+
+        for (int i = 0; i < 5; i++){
+            MPI_Send(aux + i * message_size, message_size, MPI_INT, 0, 0,MPI_COMM_WORLD);
+            MPI_Recv(aux + i * message_size, message_size, MPI_INT, 0, 0,MPI_COMM_WORLD, &status);
+        }
+        MPI_Send(aux +  5 * message_size, 2, MPI_INT, 0, 0,MPI_COMM_WORLD);
+        MPI_Recv(aux +  5 * message_size, 2, MPI_INT, 0, 0,MPI_COMM_WORLD, &status);
+
         for (int i = 0; i < proc->board_length + 2; i++) {
             board[i][0]=aux[i];
         }
@@ -188,14 +208,22 @@ void advance(int ** board, int **new_board, Process *proc) {
             }
         }
     } else if (proc->rank == 2) {
-        MPI_Send(board[1], proc->board_length + 2, MPI_INT, 0, 0,MPI_COMM_WORLD);
-        MPI_Recv(board[0], proc->board_length + 2, MPI_INT, 0, 0,MPI_COMM_WORLD, &status);
+        for (int i = 0; i < 5; i++){
+            MPI_Send(board[1]+ i * message_size, message_size, MPI_INT, 0, 0,MPI_COMM_WORLD);
+            MPI_Recv(board[0]+ i * message_size, message_size, MPI_INT, 0, 0,MPI_COMM_WORLD, &status);
+        }
+        MPI_Send(board[1]+ 5 * message_size, 2, MPI_INT, 0, 0,MPI_COMM_WORLD);
+        MPI_Recv(board[0]+ 5 * message_size, 2, MPI_INT, 0, 0,MPI_COMM_WORLD, &status);
         
         for (int i = 0; i < proc->board_length + 2; i++) {
             aux[i]=board[i][proc->board_length];
         }
-        MPI_Send(aux, proc->board_length + 2, MPI_INT, 3, 0,MPI_COMM_WORLD);
-        MPI_Recv(aux, proc->board_length + 2, MPI_INT, 3, 0,MPI_COMM_WORLD, &status);
+        for (int i = 0; i < 5; i++){
+            MPI_Send(aux + i * message_size, message_size, MPI_INT, 3, 0,MPI_COMM_WORLD);
+            MPI_Recv(aux + i * message_size, message_size, MPI_INT, 3, 0,MPI_COMM_WORLD, &status);
+        }
+        MPI_Send(aux + 5 * message_size, 2, MPI_INT, 3, 0,MPI_COMM_WORLD);
+        MPI_Recv(aux + 5 * message_size, 2, MPI_INT, 3, 0,MPI_COMM_WORLD, &status);
         for (int i = 0; i < proc->board_length + 2; i++) {
             board[i][proc->board_length + 1]=aux[i];
         }
@@ -209,14 +237,23 @@ void advance(int ** board, int **new_board, Process *proc) {
             }
         }
     } else if (proc->rank == 3) {
-        MPI_Send(board[1], proc->board_length + 2, MPI_INT, 1, 0,MPI_COMM_WORLD);
-        MPI_Recv(board[0], proc->board_length + 2, MPI_INT, 1, 0,MPI_COMM_WORLD, &status);
+        for (int i = 0; i < 5; i++){
+            MPI_Send(board[1] + i * message_size, message_size, MPI_INT, 1, 0,MPI_COMM_WORLD);
+            MPI_Recv(board[0] + i * message_size, message_size, MPI_INT, 1, 0,MPI_COMM_WORLD, &status);
+        }
+        MPI_Send(board[1] + 5 * message_size, 2, MPI_INT, 1, 0,MPI_COMM_WORLD);
+        MPI_Recv(board[0] + 5 * message_size, 2, MPI_INT, 1, 0,MPI_COMM_WORLD, &status);
         
         for (int i = 0; i < proc->board_length + 2; i++) {
             aux[i]=board[i][1];
         }
-        MPI_Send(aux, proc->board_length + 2, MPI_INT, 2, 0,MPI_COMM_WORLD);
-        MPI_Recv(aux, proc->board_length + 2, MPI_INT, 2, 0,MPI_COMM_WORLD, &status);
+
+        for (int i = 0; i < 5; i++){
+            MPI_Send(aux + i * message_size, message_size, MPI_INT, 2, 0,MPI_COMM_WORLD);
+            MPI_Recv(aux + i * message_size, message_size, MPI_INT, 2, 0,MPI_COMM_WORLD, &status);
+        }
+        MPI_Send(aux + 5 * message_size, 2, MPI_INT, 2, 0,MPI_COMM_WORLD);
+        MPI_Recv(aux + 5 * message_size, 2, MPI_INT, 2, 0,MPI_COMM_WORLD, &status);
         for (int i = 0; i < proc->board_length + 2; i++) {
             board[i][0]=aux[i];
         }
@@ -259,6 +296,7 @@ int main(int argc, char ** argv) {
 
         advance(board, new_board, &process);
         //print(board, &process);
+        printf("Iteracion: %d, %d\n", iteration, rank);
         aux = board;
         board = new_board;
         new_board = aux;
