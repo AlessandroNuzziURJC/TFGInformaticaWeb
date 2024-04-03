@@ -296,7 +296,7 @@ int main(int argc, char ** argv) {
 
         advance(board, new_board, &process);
         //print(board, &process);
-        printf("Iteracion: %d, %d\n", iteration, rank);
+        //printf("Iteracion: %d, %d\n", iteration, rank);
         aux = board;
         board = new_board;
         new_board = aux;
