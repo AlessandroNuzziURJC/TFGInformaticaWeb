@@ -85,27 +85,31 @@ void free_memory(int ** matrix) {
     free(matrix);
 }
 
-/*void print(int ** board) {
+void print(int ** board) {
+    FILE *outputFile;
+
+    outputFile = fopen("output.txt", "w");
     for (int i = 0; i < BOARD_SIZE; i++) {
         for (int j = 0; j < BOARD_SIZE; j++) {
-            printf("%d", board[i][j]);
+            fprintf(outputFile, "%d", board[i][j]);
         }
-        printf("\n");
+        fprintf(outputFile, "\n");
     }
-    printf("\n");
-}*/
+    fprintf(outputFile, "\n");
+    fclose(outputFile);
+}
 
 int main() {
     int** board;
     int** new_board;
     int** aux;
 
-    srand(time(NULL));
+    srand(43);
+    //srand(time(NULL));
     board = initialize_board_random();
-    new_board = initialize_board();    
+    new_board = initialize_board();   
 
     for (int iteration = 0; iteration < ITERATION; iteration ++) {
-        //print(board);
         advance(board, new_board);
         aux = board;
         board = new_board;
@@ -113,6 +117,7 @@ int main() {
         empty_board(new_board);
     }
 
+    print(board);
     free_memory(board);
     free_memory(new_board);
     exit(0);

@@ -11,15 +11,12 @@ int ** initialize_board() {
         board[i] = (int *)malloc(sizeof(int) * BOARD_SIZE);
     }
 
-    #pragma omp parallel
-    {
-        #pragma omp for
-        for (int i = 0; i < BOARD_SIZE; i++) {
-            for (int j = 0; j < BOARD_SIZE; j++) {
-                board[i][j] = rand()%2;
-            }
+    for (int i = 0; i < BOARD_SIZE; i++) {
+        for (int j = 0; j < BOARD_SIZE; j++) {
+            board[i][j] = rand()%2;
         }
     }
+
 
     return board;
 }
@@ -54,16 +51,6 @@ void empty_board(int ** board) {
         }
     }
 }
-
-/*void print(int ** board) {
-    for (int i = 0; i < BOARD_SIZE; i++) {
-        for (int j = 0; j < BOARD_SIZE; j++) {
-            printf("%d", board[i][j]);
-        }
-        printf("\n");
-    }
-    printf("\n");
-}*/
 
 int validate_position(int i, int j) {
     return i >= 0 && i < BOARD_SIZE && j >= 0 && j < BOARD_SIZE;
@@ -113,6 +100,20 @@ void free_memory(int ** matrix) {
     free(matrix);
 }
 
+void print(int ** board) {
+    FILE *outputFile;
+
+    outputFile = fopen("output.txt", "w");
+    for (int i = 0; i < BOARD_SIZE; i++) {
+        for (int j = 0; j < BOARD_SIZE; j++) {
+            fprintf(outputFile, "%d", board[i][j]);
+        }
+        fprintf(outputFile, "\n");
+    }
+    fprintf(outputFile, "\n");
+    fclose(outputFile);
+}
+
 int main(int argc, char *argv[]) {
     int threads = atoi(argv[1]);
     if (argc != 2 || threads == 0) {
@@ -122,22 +123,23 @@ int main(int argc, char *argv[]) {
     int** board;
     int** new_board;
     int** aux;
+    srand(43);
+    //srand(time(NULL));
+    board = initialize_board();
 
     omp_set_num_threads(threads);
-    srand(time(NULL));
-
-    board = initialize_board();
+    
     new_board = initialize_board_zero();
     
     for (int iteration = 0; iteration < ITERATIONS; iteration ++) {
-        //print(board);
         advance(board, new_board);
         aux = board;
         board = new_board;
         new_board = aux;
         empty_board(new_board);
     }
-
+    
+    print(board);
     free_memory(board);
     free_memory(new_board);
     exit(0);
