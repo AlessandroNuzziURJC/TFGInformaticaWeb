@@ -26,20 +26,23 @@ if [[ $MPI = "False" && $OPENMP = "False" ]]; then
     ssh -o StrictHostKeyChecking=no -i ./api/files/key_testsystem.pem debian@$IP "chmod 777 ./prg/exe"
     start_time=$(date +%s.%N)
     ssh -o StrictHostKeyChecking=no -i ./api/files/key_testsystem.pem debian@$IP "./prg/exe"
+    echo "./prg/exe"
     end_time=$(date +%s.%N)
     duration=$(python -c "print($end_time - $start_time)")  
 elif [[ $MPI = "True" && $OPENMP = "True" ]]; then
-    ssh -o StrictHostKeyChecking=no -i ./api/files/key_testsystem.pem debian@$IP "mpicc -O3 -fopenmp -o ./prg/exe ./prg/$programname"
+    ssh -o StrictHostKeyChecking=no -i ./api/files/key_testsystem.pem debian@$IP "mpicc -fopenmp -o ./prg/exe ./prg/$programname"
     ssh -o StrictHostKeyChecking=no -i ./api/files/key_testsystem.pem debian@$IP "chmod 777 ./prg/exe"
     start_time=$(date +%s.%N)
     ssh -o StrictHostKeyChecking=no -i ./api/files/key_testsystem.pem debian@$IP "mpirun -np $THREADS ./prg/exe"
+    echo "mpirun -np $THREADS ./prg/exe"
     end_time=$(date +%s.%N)
     duration=$(python -c "print($end_time - $start_time)")
 elif [[ $MPI = "True" ]]; then
-    ssh -o StrictHostKeyChecking=no -i ./api/files/key_testsystem.pem debian@$IP "mpicc -O3 -o ./prg/exe ./prg/$programname"
+    ssh -o StrictHostKeyChecking=no -i ./api/files/key_testsystem.pem debian@$IP "mpicc -o ./prg/exe ./prg/$programname"
     ssh -o StrictHostKeyChecking=no -i ./api/files/key_testsystem.pem debian@$IP "chmod 777 ./prg/exe"
     start_time=$(date +%s.%N)
     ssh -o StrictHostKeyChecking=no -i ./api/files/key_testsystem.pem debian@$IP "mpirun -np $THREADS ./prg/exe"
+    echo "mpirun -np $THREADS ./prg/exe"
     end_time=$(date +%s.%N)
     duration=$(python -c "print($end_time - $start_time)")
 else
@@ -47,6 +50,7 @@ else
     ssh -o StrictHostKeyChecking=no -i ./api/files/key_testsystem.pem debian@$IP "chmod 777 ./prg/exe"
     start_time=$(date +%s.%N)
     ssh -o StrictHostKeyChecking=no -i ./api/files/key_testsystem.pem debian@$IP "./prg/exe $THREADS"
+    echo "./prg/exe $THREADS"
     end_time=$(date +%s.%N)
     duration=$(python -c "print($end_time - $start_time)")  
 fi
