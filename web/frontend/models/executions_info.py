@@ -29,12 +29,12 @@ class ExecutionsInfo:
         tarjetas = []
 
         for e in l:
-            name = e[30:].replace('__', ' ').title()
-            if len(name) > 17:
-                name = name[:17] + '...'
-            aux = e[3:13].split('-')
-            date = f"{aux[2]}-{aux[1]}-{aux[0]}"
-            hour = e[15:23]
+            with open('./output/' + e + '/informacion.txt', 'r') as file:
+                name = file.readline().split(':')[1]
+                file.readline()
+                timestamp = file.readline().split(': ')[1]
+                date = timestamp[:10]
+                hour = timestamp[11:19]
 
             tarjetas.append({'name': name,
                             'date': date,
