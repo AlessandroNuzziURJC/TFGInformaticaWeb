@@ -104,8 +104,8 @@ int main() {
     int** new_board;
     int** aux;
 
-    srand(43);
-    //srand(time(NULL));
+    //srand(43);
+    srand(time(NULL));
     board = initialize_board_random();
     new_board = initialize_board();   
 

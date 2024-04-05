@@ -123,8 +123,8 @@ int main(int argc, char *argv[]) {
     int** board;
     int** new_board;
     int** aux;
-    srand(43);
-    //srand(time(NULL));
+    //srand(43);
+    srand(time(NULL));
     board = initialize_board();
 
     omp_set_num_threads(threads);

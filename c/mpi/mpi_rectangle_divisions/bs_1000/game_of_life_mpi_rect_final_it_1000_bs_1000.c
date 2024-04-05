@@ -223,8 +223,8 @@ int main(int argc, char ** argv) {
 
     //Recibir el tamaño del tablero
     MPI_Comm_size(MPI_COMM_WORLD, &size);
-    //srand(time(NULL) + rank);
-    srand(43);
+    srand(time(NULL) + rank);
+    //srand(43);
     int rank_w[size];
     calculate_section(size, rank, rank_w);
     board_div = rank_w[rank];
