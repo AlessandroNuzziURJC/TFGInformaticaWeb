@@ -12,7 +12,7 @@ class ExecutionsInfo:
         No tiene atributos.
     """
 
-    def get_executions_info(self):
+        def get_executions_info(self):
         """
         Extrae los datos básicos de todas las ejecuciones realizadas.
 
@@ -25,11 +25,15 @@ class ExecutionsInfo:
         if not os.path.exists('./output'):
             return []
 
-        l = sorted(os.listdir('./output'), reverse=True)
+        aux_list = []
+        for e in os.listdir('./output'):
+            aux_list.append((int(e.split('_')[0]), e))
+
+        l = sorted(aux_list, reverse=True, key=lambda x: x[0])
         tarjetas = []
 
         for e in l:
-            with open('./output/' + e + '/informacion.txt', 'r') as file:
+            with open('./output/' + e[1] + '/informacion.txt', 'r') as file:
                 name = file.readline().split(':')[1]
                 file.readline()
                 timestamp = file.readline().split(': ')[1]
