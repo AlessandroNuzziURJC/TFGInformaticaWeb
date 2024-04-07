@@ -6,7 +6,7 @@ from .instance import *
 import threading
 
 class UniqueIdentifier:
-    _counter = 0
+    _counter = max(int(elem.split('_')[0]) for elem in os.listdir('./output') if os.path.isdir(os.path.join('./output', elem)))
     _lock = threading.Lock()
 
     @classmethod
