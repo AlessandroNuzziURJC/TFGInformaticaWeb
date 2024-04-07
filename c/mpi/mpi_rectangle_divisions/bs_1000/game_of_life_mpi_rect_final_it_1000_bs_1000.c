@@ -221,7 +221,6 @@ int main(int argc, char ** argv) {
         
     MPI_Comm_rank(MPI_COMM_WORLD, &rank);
 
-    //Recibir el tamaño del tablero
     MPI_Comm_size(MPI_COMM_WORLD, &size);
     srand(time(NULL) + rank);
     //srand(43);
@@ -237,7 +236,6 @@ int main(int argc, char ** argv) {
 
     for (int iteration = 0; iteration < ITERATION; iteration ++) {
         advance(board, new_board, &process);
-        //print(board, &process);
         aux = board;
         board = new_board;
         new_board = aux;

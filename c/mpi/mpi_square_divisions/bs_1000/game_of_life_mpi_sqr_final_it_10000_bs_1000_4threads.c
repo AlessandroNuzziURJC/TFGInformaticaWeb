@@ -209,6 +209,14 @@ void advance(int ** board, int **new_board, Process *proc) {
     }
 }
 
+void free_memory(int ** matrix, Process *proc) {
+    for (int i = 0; i < proc->board_length + 2; i++){
+        free(matrix[i]);
+    }
+
+    free(matrix);
+}
+
 void print(int ** board, Process *proc) {
     MPI_Status status;
     FILE *outputFile;
@@ -275,7 +283,6 @@ int main(int argc, char ** argv) {
         
     MPI_Comm_rank(MPI_COMM_WORLD, &rank);
 
-    //Recibir el tamaño del tablero
     MPI_Comm_size(MPI_COMM_WORLD, &size);
     srand(time(NULL) + rank);
     //srand(43);
@@ -296,7 +303,8 @@ int main(int argc, char ** argv) {
     }
 
     print(board, &process);
-
+    free_memory(board, &process);
+    free_memory(new_board, &process);
     MPI_Finalize();
 
     return 0;
