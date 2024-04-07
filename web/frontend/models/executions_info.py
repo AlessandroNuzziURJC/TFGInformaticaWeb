@@ -12,7 +12,7 @@ class ExecutionsInfo:
         No tiene atributos.
     """
 
-        def get_executions_info(self):
+    def get_executions_info(self):
         """
         Extrae los datos básicos de todas las ejecuciones realizadas.
 
