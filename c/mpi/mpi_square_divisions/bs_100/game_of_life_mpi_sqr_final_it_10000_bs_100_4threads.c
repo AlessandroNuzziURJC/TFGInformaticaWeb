@@ -14,7 +14,6 @@ typedef struct{
 } Process;
 
 int ** initialize_board(int board_div, int rank) {
-    srand(time(NULL) + rank);
     int **board = (int **) malloc(sizeof(int*) * (board_div + 2));
     for (int i = 0; i < board_div + 2; i++) {
         board[i] = (int *)malloc(sizeof(int) * (board_div + 2));
@@ -23,9 +22,6 @@ int ** initialize_board(int board_div, int rank) {
     for (int i = 1; i < board_div + 1; i++) {
         board[i][0] = -1;
         board[i][board_div + 1] = -1;
-        for (int j = 1; j < board_div + 1; j++) {
-            board[i][j] = rand()%2;
-        }
     }
 
     for (int j = 0; j < board_div + 2; j++) {
@@ -39,22 +35,40 @@ int ** initialize_board(int board_div, int rank) {
     return board;
 }
 
-int ** initialize_board_check(int board_div, int rank, int size) {
+void generate_cells(int** board, Process *proc) {
     MPI_Status status;
-    int checked;
-    if (rank == 0) {
-        int** board = initialize_board(board_div, rank);
-        checked = 1;
-        MPI_Send(&checked, 1, MPI_INT, (rank+1)%size, 0, MPI_COMM_WORLD);
-        return board;
-    } else {
-        MPI_Recv(&checked, 1, MPI_INT, rank-1, 0,MPI_COMM_WORLD, &status);
-        int** board = initialize_board(board_div, rank);
-        if ((rank+1)%size != 0) {
-            checked = 1;
-            MPI_Send(&checked, 1, MPI_INT, (rank+1)%size, 0, MPI_COMM_WORLD);
+    int aux[proc->board_length];
+
+    if (proc->rank == 0) {
+        for (int i = 1; i < proc->board_length + 1; i++) {
+            for (int j = 1; j < proc->board_length + 1; j++) {
+                board[i][j] = rand()%2;
+            }
+            for (int j = 0; j < proc->board_length; j++) {
+                aux[j] = rand()%2;
+            }
+            MPI_Send(aux, proc->board_length, MPI_INT, 1, 0, MPI_COMM_WORLD);
         }
-        return board;
+
+        for (int i = 1; i < proc->board_length + 1; i++) {
+            for (int j = 0; j < proc->board_length; j++) {
+                aux[j] = rand()%2;
+            }
+            MPI_Send(aux, proc->board_length, MPI_INT, 2, 0, MPI_COMM_WORLD);
+            for (int j = 0; j < proc->board_length; j++) {
+                aux[j] = rand()%2;
+            }
+            MPI_Send(aux, proc->board_length, MPI_INT, 3, 0, MPI_COMM_WORLD);
+        }
+
+    } else {
+        // Recepción de datos en procesos diferentes de 0
+        for (int i = 1; i < proc->board_length + 1; i++) {
+            MPI_Recv(aux, proc->board_length, MPI_INT, 0, 0, MPI_COMM_WORLD, &status);
+            for (int j = 1; j < proc->board_length + 1; j++) {
+                board[i][j] = aux[j - 1];
+            }
+        }
     }
 }
 
@@ -130,18 +144,6 @@ int check_life(int i, int j, int ** board) {
         return 0;
 }
 
-/*void print(int ** board, Process *proc) {
-    printf("Process %d\n", proc->rank);
-    for (int i = 0; i < proc->board_length + 2; i++) {
-        for (int j = 0; j < proc->board_length + 2; j++) {
-            printf("%d", board[i][j]);
-        }
-        printf("\n");
-    }
-    printf("\n");
-}*/
-
-
 void advance(int ** board, int **new_board, Process *proc) {
     MPI_Status status;
     int aux[proc->board_length + 2];
@@ -157,15 +159,6 @@ void advance(int ** board, int **new_board, Process *proc) {
         for (int i = 0; i < proc->board_length + 2; i++) {
             board[i][proc->board_length + 1]=aux[i];
         }
-
-        //Calcular avance
-        for (int i = 1; i < proc->board_length + 1; i++) {
-            for (int j = 1; j < proc->board_length + 1; j++) {
-                if (check_life(i, j, board)) {
-                    new_board[i][j] = 1;
-                }
-            }
-        }
     } else if (proc->rank == 1) {
         MPI_Send(board[proc->board_length], proc->board_length + 2, MPI_INT, 3, 0,MPI_COMM_WORLD);
         MPI_Recv(board[proc->board_length + 1], proc->board_length + 2, MPI_INT, 3, 0,MPI_COMM_WORLD, &status);
@@ -179,14 +172,6 @@ void advance(int ** board, int **new_board, Process *proc) {
             board[i][0]=aux[i];
         }
 
-        //Calcular avance
-        for (int i = 1; i < proc->board_length + 1; i++) {
-            for (int j = 1; j < proc->board_length + 1; j++) {
-                if (check_life(i, j, board)) {
-                    new_board[i][j] = 1;
-                }
-            }
-        }
     } else if (proc->rank == 2) {
         MPI_Send(board[1], proc->board_length + 2, MPI_INT, 0, 0,MPI_COMM_WORLD);
         MPI_Recv(board[0], proc->board_length + 2, MPI_INT, 0, 0,MPI_COMM_WORLD, &status);
@@ -200,14 +185,6 @@ void advance(int ** board, int **new_board, Process *proc) {
             board[i][proc->board_length + 1]=aux[i];
         }
 
-        //Calcular avance
-        for (int i = 1; i < proc->board_length + 1; i++) {
-            for (int j = 1; j < proc->board_length + 1; j++) {
-                if (check_life(i, j, board)) {
-                    new_board[i][j] = 1;
-                }
-            }
-        }
     } else if (proc->rank == 3) {
         MPI_Send(board[1], proc->board_length + 2, MPI_INT, 1, 0,MPI_COMM_WORLD);
         MPI_Recv(board[0], proc->board_length + 2, MPI_INT, 1, 0,MPI_COMM_WORLD, &status);
@@ -221,13 +198,67 @@ void advance(int ** board, int **new_board, Process *proc) {
             board[i][0]=aux[i];
         }
         
-        //Calcular avance
-        for (int i = 1; i < proc->board_length + 1; i++) {
-            for (int j = 1; j < proc->board_length + 1; j++) {
-                if (check_life(i, j, board)) {
-                    new_board[i][j] = 1;
-                }
+    }
+
+    for (int i = 1; i < proc->board_length + 1; i++) {
+        for (int j = 1; j < proc->board_length + 1; j++) {
+            if (check_life(i, j, board)) {
+                new_board[i][j] = 1;
             }
+        }
+    }
+}
+
+void print(int ** board, Process *proc) {
+    MPI_Status status;
+    FILE *outputFile;
+    int check = 1;
+
+    if (proc->rank == 0) {
+        outputFile = fopen("output.txt", "w");
+        fclose(outputFile);
+        for (int i = 1; i < proc->board_length + 1; i++) {
+            outputFile = fopen("output.txt", "a");
+            for (int j = 1; j < proc->board_length + 1; j++) {
+                fprintf(outputFile, "%d", board[i][j]);
+            }
+            fclose(outputFile);
+            MPI_Send(&check, 1, MPI_INT, 1, 0,MPI_COMM_WORLD);
+            MPI_Recv(&check, 1, MPI_INT, 1, 0,MPI_COMM_WORLD, &status);
+        }
+        MPI_Send(&check, 1, MPI_INT, 2, 0,MPI_COMM_WORLD);
+    } else if (proc->rank == 1) {
+        for (int i = 1; i < proc->board_length + 1; i++) {
+            MPI_Recv(&check, 1, MPI_INT, 0, 0,MPI_COMM_WORLD, &status);
+            outputFile = fopen("output.txt", "a");
+            for (int j = 1; j < proc->board_length + 1; j++) {
+                fprintf(outputFile, "%d", board[i][j]);
+            }
+            fprintf(outputFile, "\n");
+            fclose(outputFile);
+            MPI_Send(&check, 1, MPI_INT, 0, 0,MPI_COMM_WORLD);
+        }
+    } else if (proc->rank == 2) {
+        MPI_Recv(&check, 1, MPI_INT, 0, 0,MPI_COMM_WORLD, &status);
+        for (int i = 1; i < proc->board_length + 1; i++) {
+            outputFile = fopen("output.txt", "a");
+            for (int j = 1; j < proc->board_length + 1; j++) {
+                fprintf(outputFile, "%d", board[i][j]);
+            }
+            fclose(outputFile);
+            MPI_Send(&check, 1, MPI_INT, 3, 0,MPI_COMM_WORLD);
+            MPI_Recv(&check, 1, MPI_INT, 3, 0,MPI_COMM_WORLD, &status);
+        }
+    } else if (proc->rank == 3) {
+        for (int i = 1; i < proc->board_length + 1; i++) {
+            MPI_Recv(&check, 1, MPI_INT, 2, 0,MPI_COMM_WORLD, &status);
+            outputFile = fopen("output.txt", "a");
+            for (int j = 1; j < proc->board_length + 1; j++) {
+                fprintf(outputFile, "%d", board[i][j]);
+            }
+            fprintf(outputFile, "\n");
+            fclose(outputFile);
+            MPI_Send(&check, 1, MPI_INT, 2, 0,MPI_COMM_WORLD);
         }
     }
 }
@@ -246,26 +277,25 @@ int main(int argc, char ** argv) {
 
     //Recibir el tamaño del tablero
     MPI_Comm_size(MPI_COMM_WORLD, &size);
+    srand(time(NULL) + rank);
+    //srand(43);
 
     board_div = calculate_section(size, rank);
-    board = initialize_board_check(board_div, rank, size);
+    board = initialize_board(board_div, rank);
     new_board = initialize_board_zero(board_div);
 
     Process process = {rank, size, board_div};
-    //print(board, &process);
+    generate_cells(board, &process);
 
     for (int iteration = 0; iteration < ITERATION; iteration ++) {
-        //print(board, &process);
-
         advance(board, new_board, &process);
-        //print(board, &process);
         aux = board;
         board = new_board;
         new_board = aux;
         empty_board(new_board, board_div);
     }
 
-    //print(board, &process);
+    print(board, &process);
 
     MPI_Finalize();
 

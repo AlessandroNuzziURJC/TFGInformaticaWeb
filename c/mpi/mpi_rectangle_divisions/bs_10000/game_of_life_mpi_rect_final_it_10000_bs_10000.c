@@ -205,7 +205,7 @@ void print(int ** board, Process *proc) {
         fclose(outputFile);
         MPI_Send(&check, 1, MPI_INT, 1, 0,MPI_COMM_WORLD);
     } else {
-        MPI_Recv(board[proc->board_length + 1], BOARD_SIZE, MPI_INT, proc->rank - 1, 0,MPI_COMM_WORLD, &status);
+        MPI_Recv(&check, 1, MPI_INT, proc->rank - 1, 0,MPI_COMM_WORLD, &status);
         outputFile = fopen("output.txt", "a");
         for (int i = 1; i < proc->board_length + 1; i++) {
             for (int j = 0; j < BOARD_SIZE; j++) {
