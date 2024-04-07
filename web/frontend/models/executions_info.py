@@ -43,6 +43,6 @@ class ExecutionsInfo:
             tarjetas.append({'name': name,
                             'date': date,
                              'hour': hour,
-                             'execution_unique_name': e})
+                             'execution_unique_name': e[1]})
 
         return tarjetas
