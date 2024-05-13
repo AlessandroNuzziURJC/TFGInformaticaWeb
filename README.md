@@ -10,6 +10,8 @@ La aplicación está montada sobre Clea, utilizando la infraestructura como serv
 - **Interfaz Intuitiva:** La interfaz de usuario de P-3CO es fácil de usar y proporciona visualizaciones claras de los datos de estimación y análisis.
 
 ## Estructura del repositorio
+- **Carpeta c:** Contiene algoritmos del Juego de la Vida con MPI, OpenMP para probar el sistema.
+- **Carpeta web:** Contiene la aplicación web en Django.
 
 ## Instalación
 1. Crea una instancia Debian 11 en el usuario de OpenStack que tengas disponible.
@@ -26,4 +28,4 @@ La aplicación está montada sobre Clea, utilizando la infraestructura como serv
     ```
 
 ## Licencia
-Este proyecto está bajo la Licencia MIT. Consulta el archivo `LICENSE` para más detalles.
+
