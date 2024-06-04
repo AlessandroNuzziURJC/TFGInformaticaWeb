@@ -22,7 +22,7 @@ La aplicación está montada sobre Clea, utilizando la infraestructura como serv
 1. Ejecuta la aplicación en la instancia utilizando los siguientes comandos:
     ```bash
     source venv/bin/activate
-    cd ./TFGinformaticaWeb/web
+    cd ./TFGInformaticaWeb/web
     python manage.py runserver 0.0.0.0:8080
     // Si se desea mantener el servidor levantado sustituir la última instrucción por: nohup python manage.py runserver 0.0.0.0:8080 &
     ```
