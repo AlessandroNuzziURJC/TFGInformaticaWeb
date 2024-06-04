@@ -17,6 +17,13 @@ file_path_general = os.path.join(settings.BASE_DIR, 'files')
 
 @csrf_exempt
 def enqueue(request):
+    """
+    Función que encola la ejecución a realizar.
+
+    Args:
+
+    Returns:
+    """
     if request.method == 'POST':
         try:
             aux = dict()
@@ -37,6 +44,13 @@ def enqueue(request):
 
 
 def get_queue(request):
+    """
+    Función que devuelve la cola completa con el estado de cada ejecución.
+
+    Args:
+
+    Returns:
+    """
     if request.method == 'GET':
         waiting_queue_content = [execution.to_dict()
                          for execution in execution_queue.waiting_queue]
@@ -49,6 +63,13 @@ def get_queue(request):
 
 @csrf_exempt
 def store_conf_files(request):
+    """
+    Función que almacena los archivos de configuración.
+
+    Args:
+
+    Returns:
+    """
     if request.method == 'POST':
         if execution_queue.is_empty():
             try:
@@ -85,6 +106,13 @@ def store_conf_files(request):
         return JsonResponse({"error": "Method not allowed"}, status=405)
 
 def generate_info_txt():
+    """
+    Función que genera datos de configuración del sistema.
+
+    Args:
+
+    Returns:
+    """
     openstack = OpenstackService()
     openstack.connect()
     generate_file_user_data(openstack, file_path_general)
@@ -94,6 +122,13 @@ def generate_info_txt():
     openstack.disconnect()
 
 def generate_file_user_data(openstack, path_used):
+    """
+    Función que extrae los datos de un usuario de OpenStack.
+
+    Args:
+
+    Returns:
+    """
     path = os.path.join(
         settings.BASE_DIR, path_used, 'user_data.txt')
     with open(path, 'w') as file:
@@ -102,6 +137,13 @@ def generate_file_user_data(openstack, path_used):
             file.write(e + ': ' + str(limits[e]) + '\n')
 
 def generate_file_instance_type_general(openstack, path_used):
+    """
+    Función que extrae los datos de las instancias de un usuario de OpenStack.
+
+    Args:
+
+    Returns:
+    """
     path = os.path.join(
         settings.BASE_DIR, path_used, 'instance_types.txt')
     with open(path, 'w') as file:
@@ -110,6 +152,13 @@ def generate_file_instance_type_general(openstack, path_used):
             file.write(e + '\n')
 
 def generate_file_instance_type_api(openstack, path_used):
+    """
+    Función que extrae datos de las instancias de un usuario de OpenStack.
+
+    Args:
+
+    Returns:
+    """
     path = os.path.join(
         settings.BASE_DIR, path_used, 'instance_types.txt')
     with open(path, 'w') as file:
@@ -118,6 +167,13 @@ def generate_file_instance_type_api(openstack, path_used):
             file.write(e + ' ' + openstack.find_vcpus_used_in_flavor(e) + '\n')
     
 def generate_key(openstack, path_used):
+    """
+    Función que genera una key para las instancias.
+
+    Args:
+
+    Returns:
+    """
     path = os.path.join(
         settings.BASE_DIR, path_used, 'key_testsystem.pem')
     if os.path.exists(path):
@@ -125,6 +181,13 @@ def generate_key(openstack, path_used):
     openstack.create_key(path, 'key_testsystem')
 
 def adapt_sh_file(file_sh, file_yaml):
+    """
+    Función que ajusta el script para automatizar el inicio de sesión en OpenStack.
+
+    Args:
+
+    Returns:
+    """
     ubication_sh = os.path.join(
                 settings.MEDIA_ROOT, file_path, file_sh.name)
     os.makedirs(file_path + '/adaptation')
@@ -153,6 +216,13 @@ def adapt_sh_file(file_sh, file_yaml):
 
 
 def get_yaml_conf_file(request):
+    """
+    Función que devuelve yaml file.
+
+    Args:
+
+    Returns:
+    """
     yaml_file_name = None
 
     if not os.path.exists(file_path):
@@ -173,6 +243,13 @@ def get_yaml_conf_file(request):
 
 
 def get_sh_conf_file(request):
+    """
+    Función que devuelve el script file.
+
+    Args:
+
+    Returns:
+    """
     sh_file_name = None
 
     if not os.path.exists(file_path):
@@ -193,6 +270,13 @@ def get_sh_conf_file(request):
 
 
 def exists_conf_files(request):
+    """
+    Función que verifica la existencia de los archivos de configuración.
+
+    Args:
+
+    Returns:
+    """
     output = {'yaml_file_name': None, 'sh_file_name': None}
 
     if not os.path.exists(file_path):
