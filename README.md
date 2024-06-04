@@ -26,6 +26,3 @@ La aplicación está montada sobre Clea, utilizando la infraestructura como serv
     python manage.py runserver 0.0.0.0:8080
     // Si se desea mantener el servidor levantado sustituir la última instrucción por: nohup python manage.py runserver 0.0.0.0:8080 &
     ```
-
-## Licencia
-
