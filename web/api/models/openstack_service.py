@@ -2,6 +2,7 @@ from openstack import connection
 import yaml
 from django.conf import settings
 import os
+import re
 
 class OpenstackService():
     """
@@ -48,7 +49,7 @@ class OpenstackService():
             list: Lista de flavors.
         """
         l = list(self.conn.compute.flavors())
-        return list(sorted(l, key=lambda x: int(x.id[1:])))
+        return list(sorted(l, key=lambda x: int(re.search(r'\d+', x.id[1:]).group())))
 
     def get_limits(self):
         """
@@ -75,7 +76,7 @@ class OpenstackService():
         # Filter valid instances
         flavors_names = []
         for e in list(self.flavors()):
-            if ('c' in e.id and int(e.id[1:]) <= self.get_limits()['maxTotalCores'] - used_vcpus):
+            if ('c' in e.id and int(re.search(r'\d+', e.id[1:]).group()) <= self.get_limits()['maxTotalCores'] - used_vcpus):
                 flavors_names.append(e.id)
         return flavors_names
     
